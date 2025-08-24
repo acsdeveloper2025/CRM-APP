@@ -6,7 +6,6 @@ export const SimpleLoginPage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Login attempt:', { username, password });
     alert(`Login attempt with username: ${username}`);
   };
 

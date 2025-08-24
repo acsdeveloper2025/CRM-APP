@@ -104,7 +104,6 @@ class AutoSaveService {
       if (data) {
         await encryptedStorage.setItem(key, data);
         this.saveQueue.delete(key);
-        console.log(`Auto-saved form data for ${data.caseId} (${data.formType})`);
       }
     } catch (error) {
       console.error('Error processing save queue:', error);
@@ -186,8 +185,6 @@ class AutoSaveService {
       
       // Notify listeners
       this.notifyListeners(key, null);
-      
-      console.log(`Removed auto-save data for ${caseId} (${formType})`);
     } catch (error) {
       console.error('Error removing auto-save data:', error);
     }
@@ -254,7 +251,6 @@ class AutoSaveService {
           // Remove old or completed auto-save data
           if (age > this.MAX_AUTOSAVE_AGE || data.isComplete) {
             await encryptedStorage.removeItem(key);
-            console.log(`Cleaned up old auto-save data: ${key}`);
           }
         }
       }

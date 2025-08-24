@@ -219,15 +219,12 @@ class WebSocketService {
     this.socket.on('disconnect', (reason) => {
       this.state.isConnected = false;
       this.stopPingInterval();
-      console.log('WebSocket disconnected:', reason);
       this.eventHandlers.onDisconnected?.(reason);
       
       // Only auto-reconnect if server disconnected us, not if we disconnected intentionally
       if (reason === 'io server disconnect' || reason === 'transport close') {
-        console.log('Server initiated disconnect, scheduling reconnection');
         this.scheduleReconnect();
       } else if (reason === 'transport error') {
-        console.log('Transport error, scheduling reconnection');
         this.scheduleReconnect();
       }
     });
@@ -283,12 +280,9 @@ class WebSocketService {
     // Exponential backoff with minimum 1 second delay
     const delay = Math.max(1000, this.config.reconnectDelay * Math.pow(2, this.state.reconnectAttempts - 1));
     
-    console.log(`Scheduling WebSocket reconnection attempt ${this.state.reconnectAttempts} in ${delay}ms`);
-    
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = null;
       if (this.state.reconnectAttempts <= this.config.reconnectAttempts) {
-        console.log(`Attempting WebSocket reconnection ${this.state.reconnectAttempts}/${this.config.reconnectAttempts}`);
         this.connect().catch((error) => {
           console.warn(`WebSocket reconnection attempt ${this.state.reconnectAttempts} failed:`, error.message);
         });

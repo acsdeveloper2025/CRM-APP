@@ -22,8 +22,8 @@ This document provides step-by-step instructions for deploying the CRM-APP to fr
 1. Create a free Supabase account at https://supabase.com/
 2. Create a new project
 3. Note down the following credentials:
-   - Database URL
-   - Database password
+   - Database URL  - https://chtvnmgufhfdautonkyd.supabase.co
+   - Database password-   wyyDC3MP2eeNItAf
 4. Run the database migrations (instructions in project documentation)
 
 ### 2. Redis Setup (Upstash)
@@ -31,8 +31,11 @@ This document provides step-by-step instructions for deploying the CRM-APP to fr
 1. Create a free Upstash account at https://upstash.com/
 2. Create a new Redis database
 3. Note down the following credentials:
-   - Redis URL
+   - Redis URL :- 
+   redis-cli --tls -u redis://default:AR9FAAImcDFjYTM1ZDUwY2VlMGQ0NTBiOTU0NjVmNDQ2YTU3Yzg4MHAxODAwNQ@big-tahr-8005.upstash.io:6379
    - Redis password
+   UPSTASH_REDIS_REST_URL="https://big-tahr-8005.upstash.io"
+UPSTASH_REDIS_REST_TOKEN="AR9FAAImcDFhMDZhMDMxYTFmZTk0NDQ2OGEwOTcyMmM1ODRkMmZiYXAxODAwNQ"
 
 ### 3. Backend Deployment (Render)
 

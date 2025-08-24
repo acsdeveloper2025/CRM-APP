@@ -54,10 +54,10 @@ const AutoSaveFormWrapper: React.FC<AutoSaveFormWrapperProps> = ({
     debounceMs,
     enableAutoSave,
     onAutoSaveSuccess: (data) => {
-      console.log('Auto-save successful:', data);
+      // Auto-save successful
     },
     onAutoSaveError: (error) => {
-      console.error('Auto-save error:', error);
+      // Auto-save error
     },
     onDataRestored: (data) => {
       if (onDataRestored) {
@@ -90,10 +90,10 @@ const AutoSaveFormWrapper: React.FC<AutoSaveFormWrapperProps> = ({
               onDataRestored(savedData);
             }
 
-            console.log('Auto-restored draft data for case:', caseId);
+
           }
         } catch (error) {
-          console.error('Error checking for recovery data:', error);
+
         } finally {
           setHasCheckedForRecovery(true);
         }
@@ -141,7 +141,7 @@ const AutoSaveFormWrapper: React.FC<AutoSaveFormWrapperProps> = ({
     try {
       await markFormCompleted();
     } catch (error) {
-      console.error('Error marking form as completed:', error);
+
     }
   }, [markFormCompleted]);
 

@@ -29,7 +29,6 @@ import { CreateAreaDialog } from '@/components/locations/CreateAreaDialog';
 import { BulkImportLocationDialog } from '@/components/locations/BulkImportLocationDialog';
 
 export function LocationsPage() {
-  console.log('LocationsPage component loaded');
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedState, setSelectedState] = useState<string>('all');

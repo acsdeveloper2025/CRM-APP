@@ -29,16 +29,16 @@ export interface PermissionRequestOptions {
  */
 export const requestCameraPermissions = async (options: PermissionRequestOptions = {}): Promise<PermissionStatus> => {
   try {
-    console.log('📷 Requesting camera permissions...');
+    // console.log('📷 Requesting camera permissions...');
 
     if (Capacitor.isNativePlatform()) {
       // First check current status
       const currentStatus = await Camera.checkPermissions();
-      console.log('📷 Current camera permissions:', currentStatus);
+      // console.log('📷 Current camera permissions:', currentStatus);
 
       // If already granted, return immediately
       if (currentStatus.camera === 'granted' && currentStatus.photos === 'granted') {
-        console.log('✅ Camera permissions already granted');
+        // console.log('✅ Camera permissions already granted');
         return { granted: true, denied: false, prompt: false };
       }
 
@@ -53,7 +53,7 @@ export const requestCameraPermissions = async (options: PermissionRequestOptions
         permissions: ['camera', 'photos']
       });
 
-      console.log('📷 Camera permission request result:', permissions);
+      // console.log('📷 Camera permission request result:', permissions);
 
       const cameraStatus = permissions.camera;
       const photosStatus = permissions.photos;
@@ -74,15 +74,15 @@ export const requestCameraPermissions = async (options: PermissionRequestOptions
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         stream.getTracks().forEach(track => track.stop());
-        console.log('✅ Web camera access granted');
+        // console.log('✅ Web camera access granted');
         return { granted: true, denied: false, prompt: false };
       } catch (error) {
-        console.warn('❌ Web camera access denied:', error);
+        // console.warn('❌ Web camera access denied:', error);
         return { granted: false, denied: true, prompt: false };
       }
     }
   } catch (error) {
-    console.error('❌ Camera permission request failed:', error);
+    // console.error('❌ Camera permission request failed:', error);
     return { granted: false, denied: true, prompt: false };
   }
 };
@@ -92,16 +92,16 @@ export const requestCameraPermissions = async (options: PermissionRequestOptions
  */
 export const requestLocationPermissions = async (options: PermissionRequestOptions = {}): Promise<PermissionStatus> => {
   try {
-    console.log('📍 Requesting location permissions...');
+    // console.log('📍 Requesting location permissions...');
 
     if (Capacitor.isNativePlatform()) {
       // First check current status
       const currentStatus = await Geolocation.checkPermissions();
-      console.log('📍 Current location permissions:', currentStatus);
+      // console.log('📍 Current location permissions:', currentStatus);
 
       // If already granted, return immediately
       if (currentStatus.location === 'granted') {
-        console.log('✅ Location permissions already granted');
+        // console.log('✅ Location permissions already granted');
         return { granted: true, denied: false, prompt: false };
       }
 
@@ -116,7 +116,7 @@ export const requestLocationPermissions = async (options: PermissionRequestOptio
         permissions: ['location']
       });
 
-      console.log('📍 Location permission request result:', permissions);
+      // console.log('📍 Location permission request result:', permissions);
 
       const locationStatus = permissions.location;
 
@@ -140,15 +140,15 @@ export const requestLocationPermissions = async (options: PermissionRequestOptio
             enableHighAccuracy: false
           });
         });
-        console.log('✅ Web location access granted');
+        // console.log('✅ Web location access granted');
         return { granted: true, denied: false, prompt: false };
       } catch (error) {
-        console.warn('❌ Web location access denied:', error);
+        // console.warn('❌ Web location access denied:', error);
         return { granted: false, denied: true, prompt: false };
       }
     }
   } catch (error) {
-    console.error('❌ Location permission request failed:', error);
+    // console.error('❌ Location permission request failed:', error);
     return { granted: false, denied: true, prompt: false };
   }
 };
@@ -158,16 +158,16 @@ export const requestLocationPermissions = async (options: PermissionRequestOptio
  */
 export const requestNotificationPermissions = async (options: PermissionRequestOptions = {}): Promise<PermissionStatus> => {
   try {
-    console.log('🔔 Requesting notification permissions...');
+    // console.log('🔔 Requesting notification permissions...');
 
     if (Capacitor.isNativePlatform()) {
       // First check current status
       const currentStatus = await LocalNotifications.checkPermissions();
-      console.log('🔔 Current notification permissions:', currentStatus);
+      // console.log('🔔 Current notification permissions:', currentStatus);
 
       // If already granted, return immediately
       if (currentStatus.display === 'granted') {
-        console.log('✅ Notification permissions already granted');
+        // console.log('✅ Notification permissions already granted');
         return { granted: true, denied: false, prompt: false };
       }
 
@@ -179,7 +179,7 @@ export const requestNotificationPermissions = async (options: PermissionRequestO
 
       // Request local notification permissions (more commonly used)
       const localPerms = await LocalNotifications.requestPermissions();
-      console.log('🔔 Notification permission request result:', localPerms);
+      // console.log('🔔 Notification permission request result:', localPerms);
 
       const localStatus = localPerms.display;
 
@@ -198,19 +198,19 @@ export const requestNotificationPermissions = async (options: PermissionRequestO
       // Web platform - check Notification API
       if ('Notification' in window) {
         const permission = await Notification.requestPermission();
-        console.log('🔔 Web notification permission result:', permission);
+        // console.log('🔔 Web notification permission result:', permission);
         return {
           granted: permission === 'granted',
           denied: permission === 'denied',
           prompt: permission === 'default'
         };
       } else {
-        console.warn('❌ Notifications not supported in this browser');
+        // console.warn('❌ Notifications not supported in this browser');
         return { granted: false, denied: true, prompt: false };
       }
     }
   } catch (error) {
-    console.error('❌ Notification permission request failed:', error);
+    // console.error('❌ Notification permission request failed:', error);
     return { granted: false, denied: true, prompt: false };
   }
 };
@@ -288,7 +288,7 @@ export const initializeAppPermissions = async (): Promise<PermissionResult> => {
 
     // Request location permissions if not granted
     if (!currentPermissions.location.granted && !currentPermissions.location.denied) {
-      console.log('📍 Requesting location permissions on startup...');
+      // console.log('📍 Requesting location permissions on startup...');
       results.location = await requestLocationPermissions({
         showRationale: true,
         context: 'tag photos with GPS coordinates for verification'
@@ -297,17 +297,17 @@ export const initializeAppPermissions = async (): Promise<PermissionResult> => {
 
     // Request notification permissions if not granted
     if (!currentPermissions.notifications.granted && !currentPermissions.notifications.denied) {
-      console.log('🔔 Requesting notification permissions on startup...');
+      // console.log('🔔 Requesting notification permissions on startup...');
       results.notifications = await requestNotificationPermissions({
         showRationale: true,
         context: 'receive important case updates and reminders'
       });
     }
 
-    console.log('✅ App permissions initialization complete:', results);
+    // console.log('✅ App permissions initialization complete:', results);
     return results;
   } catch (error) {
-    console.error('❌ Failed to initialize app permissions:', error);
+    // console.error('❌ Failed to initialize app permissions:', error);
     return {
       camera: { granted: false, denied: true, prompt: false },
       location: { granted: false, denied: true, prompt: false },
@@ -368,9 +368,9 @@ export const openAppSettings = async (): Promise<void> => {
       window.open('app-settings:', '_system');
     } else {
       // For Android, we can't directly open app settings
-      console.log('Opening app settings not supported on this platform');
+      // console.log('Opening app settings not supported on this platform');
     }
   } catch (error) {
-    console.error('Failed to open app settings:', error);
+    // console.error('Failed to open app settings:', error);
   }
 };

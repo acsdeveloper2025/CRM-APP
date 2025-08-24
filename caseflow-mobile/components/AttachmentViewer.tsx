@@ -43,19 +43,9 @@ const AttachmentViewer: React.FC<AttachmentViewerProps> = ({ attachment, isVisib
     setPdfLoaded(false);
 
     try {
-      console.log(`🔄 Loading attachment: ${attachment.name} (${attachment.type})`);
       const attachmentContent = await attachmentService.getAttachmentContent(attachment);
-
-      // Log content type for debugging
-      if (attachmentContent.startsWith('data:')) {
-        console.log(`✅ Data URL loaded for ${attachment.name}:`, attachmentContent.substring(0, 50) + '...');
-      } else {
-        console.log(`✅ File path loaded for ${attachment.name}:`, attachmentContent);
-      }
-
       setContent(attachmentContent);
     } catch (err) {
-      console.error(`❌ Failed to load attachment ${attachment.name}:`, err);
       setError(err instanceof Error ? err.message : 'Failed to load attachment');
     } finally {
       setLoading(false);
@@ -79,7 +69,6 @@ const AttachmentViewer: React.FC<AttachmentViewerProps> = ({ attachment, isVisib
   };
 
   const handlePdfError = (e: any) => {
-    console.error('❌ PDF loading error:', e);
     setPdfError('Failed to load PDF content');
   };
 
@@ -129,7 +118,7 @@ const AttachmentViewer: React.FC<AttachmentViewerProps> = ({ attachment, isVisib
                     type="application/pdf"
                     className="w-full h-full absolute top-0 left-0 hidden"
                     style={{ width: '100%', height: '100%' }}
-                    onLoad={() => console.log('Object PDF loaded')}
+
                   >
                     <p className="p-4 text-center text-gray-600">
                       Your browser doesn't support PDF viewing.

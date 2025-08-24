@@ -218,21 +218,21 @@ export async function safeDeleteCaseData(caseDataInfo: CaseDataInfo): Promise<bo
   try {
     // Double-check that the case is not active
     if (caseDataInfo.isActive) {
-      console.warn(`Attempted to delete active case data: ${caseDataInfo.key}`);
+      // console.warn(`Attempted to delete active case data: ${caseDataInfo.key}`);
       return false;
     }
 
     // Additional safety check for recent data
     if (isRecentData(caseDataInfo.timestamp)) {
-      console.warn(`Attempted to delete recent case data: ${caseDataInfo.key}`);
+      // console.warn(`Attempted to delete recent case data: ${caseDataInfo.key}`);
       return false;
     }
 
     await AsyncStorage.removeItem(caseDataInfo.key);
-    console.log(`✅ Safely deleted case data: ${caseDataInfo.key}`);
+    // console.log(`✅ Safely deleted case data: ${caseDataInfo.key}`);
     return true;
   } catch (error) {
-    console.error(`❌ Failed to delete case data ${caseDataInfo.key}:`, error);
+    // console.error(`❌ Failed to delete case data ${caseDataInfo.key}:`, error);
     return false;
   }
 }
@@ -366,9 +366,9 @@ export async function cleanupCorruptedData(): Promise<number> {
     try {
       await AsyncStorage.removeItem(key);
       cleaned++;
-      console.log(`🗑️ Cleaned up corrupted data: ${key}`);
+      // console.log(`🗑️ Cleaned up corrupted data: ${key}`);
     } catch (error) {
-      console.error(`Failed to clean up corrupted data ${key}:`, error);
+      // console.error(`Failed to clean up corrupted data ${key}:`, error);
     }
   }
 

@@ -52,15 +52,12 @@ const ImageCapture: React.FC<ImageCaptureProps> = ({
       if (Capacitor.isNativePlatform()) {
         // On native platforms, assume camera is available if permissions can be checked
         const permissions = await Camera.checkPermissions();
-        console.log('📷 Camera availability check:', permissions);
         return true; // Camera exists if we can check permissions
       } else {
         // On web, check if MediaDevices API is available
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-          console.log('📷 Web camera API available');
           return true;
         } else {
-          console.warn('📷 Web camera API not available');
           return false;
         }
       }
@@ -71,7 +68,6 @@ const ImageCapture: React.FC<ImageCaptureProps> = ({
   };
 
   const handleTakePhoto = async () => {
-    console.log(`📷 Starting ${componentType} capture...`);
     setError(null);
     setIsLoading(true);
 
@@ -95,20 +91,14 @@ const ImageCapture: React.FC<ImageCaptureProps> = ({
         context: componentType === 'selfie' ? 'take verification selfies' : 'capture verification photos'
       });
 
-      console.log('🔐 Camera permission result:', cameraPermission);
-
       if (!cameraPermission.granted) {
         if (cameraPermission.denied) {
-          console.error('❌ Camera permission denied by user');
           setError('Camera permission denied. Please enable camera access in device settings to continue.');
         } else {
-          console.error('❌ Camera permission not granted');
           setError('Camera permission is required to take photos');
         }
         return;
       }
-
-      console.log('✅ Camera permission granted, attempting to capture image...');
 
       // Use platform-specific camera configuration
       const platform = Capacitor.getPlatform();
@@ -117,7 +107,6 @@ const ImageCapture: React.FC<ImageCaptureProps> = ({
       if (platform === 'android') {
         // Use Android-optimized configuration
         cameraOptions = getAndroidCameraConfig(cameraDirection, 90);
-        console.log('📱 Using Android camera configuration');
       } else {
         // iOS and other platforms configuration
         cameraOptions = {
@@ -132,7 +121,6 @@ const ImageCapture: React.FC<ImageCaptureProps> = ({
           width: 1024,
           height: 1024
         };
-        console.log('📱 Using iOS camera configuration');
       }
 
       const image = await Camera.getPhoto(cameraOptions);
@@ -170,17 +158,13 @@ const ImageCapture: React.FC<ImageCaptureProps> = ({
           setError('Camera permission error. Please check your device settings.');
         }
       } else if (error.message?.includes('NSPhotoLibraryAddUsageDescription')) {
-        console.error('📷 Photo library permission missing (iOS)');
         setError('Photo library permission required. Please update app permissions in Settings.');
       } else if (error.message?.includes('NSPhotoLibraryUsageDescription')) {
-        console.error('📷 Photo library access permission missing (iOS)');
         setError('Photo library access permission required. Please enable in Settings.');
       } else if (error.message?.includes('CAMERA_PERMISSION_DENIED')) {
-        console.error('📷 Camera permission denied (Android)');
         const androidError = getAndroidCameraErrorMessage(error);
         setError(androidError || 'Camera permission denied. Please enable camera access in Settings > Apps > CaseFlow Mobile > Permissions.');
       } else if (error.code === 'CAMERA_UNAVAILABLE') {
-        console.error('📷 Camera unavailable');
         const platform = Capacitor.getPlatform();
         if (platform === 'android') {
           const androidError = getAndroidCameraErrorMessage(error);
@@ -189,15 +173,11 @@ const ImageCapture: React.FC<ImageCaptureProps> = ({
           setError('Camera is not available on this device.');
         }
       } else {
-        console.warn('🔄 Native camera failed, attempting web camera fallback...');
-
         // Try web camera fallback
         if (fileInputRef.current) {
-          console.log('📁 Triggering file input fallback...');
           fileInputRef.current.click();
           return; // Don't show error yet, let file input handle it
         } else {
-          console.error('❌ No fallback available');
           setError(`Camera capture failed: ${error.message || 'Unknown error'}. Please try again.`);
         }
       }
@@ -207,7 +187,6 @@ const ImageCapture: React.FC<ImageCaptureProps> = ({
   };
 
   const processImage = async (dataUrl: string) => {
-    console.log('🔄 Starting image processing...');
     try {
       // Get enhanced location data
       let enhancedLocation: EnhancedLocationData | null = null;
@@ -224,14 +203,10 @@ const ImageCapture: React.FC<ImageCaptureProps> = ({
         });
 
         if (locationPermission.granted) {
-          console.log('📍 Location permission granted, getting location...');
-
           // Initialize Google Maps service (non-blocking)
           try {
             await googleMapsService.initialize();
-            console.log('🗺️ Google Maps initialized successfully');
           } catch (mapsError) {
-            console.warn('Google Maps initialization failed, proceeding with basic geolocation:', mapsError);
           }
 
           // Use enhanced geolocation service with timeout
@@ -252,10 +227,7 @@ const ImageCapture: React.FC<ImageCaptureProps> = ({
             latitude = enhancedLocation.latitude;
             longitude = enhancedLocation.longitude;
             accuracy = enhancedLocation.accuracy;
-            console.log('✅ Enhanced geolocation successful');
           } catch (enhancedError) {
-            console.warn('Enhanced geolocation failed, trying basic fallback:', enhancedError);
-
             // Fallback to basic Capacitor geolocation
             try {
               const position = await Promise.race([
@@ -270,16 +242,12 @@ const ImageCapture: React.FC<ImageCaptureProps> = ({
               latitude = position.coords.latitude;
               longitude = position.coords.longitude;
               accuracy = position.coords.accuracy;
-              console.log('✅ Basic geolocation successful');
             } catch (fallbackError) {
-              console.warn('All geolocation methods failed, proceeding without location:', fallbackError);
             }
           }
         } else {
-          console.warn('Location permission not granted, proceeding without location');
         }
       } catch (permissionError) {
-        console.warn('Location permission request failed, proceeding without location:', permissionError);
       }
 
       const timestamp = new Date().toISOString();
@@ -307,20 +275,16 @@ const ImageCapture: React.FC<ImageCaptureProps> = ({
       }
 
       // Directly add to images array - this should always succeed
-      console.log('✅ Adding image to array:', newImage.id);
       onImagesChange([...images, newImage]);
-      console.log('✅ Image processing completed successfully');
 
       // Fetch address for the new image if location is available but no enhanced data
       // Do this asynchronously to not block the image saving
       if (latitude !== 0 && longitude !== 0 && !enhancedLocation?.address) {
         // Don't await this - let it run in background
         fetchAddressForImage(newImage.id, latitude, longitude).catch(err => {
-          console.warn('Background address fetch failed:', err);
         });
       }
     } catch (err) {
-      console.error('❌ Image processing error:', err);
       setError('Failed to process captured image. Please try again.');
       throw err; // Re-throw to ensure calling function knows about the error
     }
@@ -350,7 +314,6 @@ const ImageCapture: React.FC<ImageCaptureProps> = ({
         throw new Error('Address not found');
       }
     } catch (error) {
-      console.warn('Reverse geocoding failed:', error);
       throw error;
     }
   };
@@ -393,40 +356,27 @@ const ImageCapture: React.FC<ImageCaptureProps> = ({
 
 
   const handleFileCapture = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('📁 File input triggered for fallback capture...');
     const file = event.target.files?.[0];
 
     if (!file) {
-      console.log('ℹ️ No file selected from file input');
       setIsLoading(false);
       return;
     }
 
-    console.log('📁 File selected:', {
-      name: file.name,
-      type: file.type,
-      size: file.size,
-      lastModified: file.lastModified
-    });
-
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      console.error('❌ Invalid file type:', file.type);
       setError('Please select a valid image file.');
       return;
     }
 
     // Validate file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
-      console.error('❌ File too large:', file.size);
       setError('Image file is too large (max 10MB). Please choose a smaller image.');
       return;
     }
 
     setIsLoading(true);
     setError(null);
-
-    console.log(`📁 Processing ${componentType} image from file input...`);
 
     try {
       const reader = new FileReader();
@@ -439,9 +389,7 @@ const ImageCapture: React.FC<ImageCaptureProps> = ({
           }
 
           await processImage(dataUrl);
-          console.log('✅ File input image processed successfully');
         } catch (processError) {
-          console.error('❌ File input image processing error:', processError);
           setError('Failed to process the selected image. Please try again.');
         } finally {
           setIsLoading(false);

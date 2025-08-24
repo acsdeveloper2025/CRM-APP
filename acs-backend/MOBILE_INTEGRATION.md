@@ -325,13 +325,13 @@ Import the provided Postman collection for testing all mobile endpoints:
 
 ## Deployment
 
-### Docker Configuration
+### Environment Configuration
 
-```dockerfile
+```bash
 # Mobile-specific environment variables
-ENV MOBILE_API_VERSION=4.0.0
-ENV MOBILE_ENABLE_OFFLINE_MODE=true
-ENV MOBILE_MAX_FILE_SIZE=10485760
+MOBILE_API_VERSION=4.0.0
+MOBILE_ENABLE_OFFLINE_MODE=true
+MOBILE_MAX_FILE_SIZE=10485760
 ```
 
 ### Health Checks

@@ -25,22 +25,22 @@ export class EncryptionService {
    */
   async initialize(): Promise<void> {
     try {
-      console.log('🔐 Initializing encryption service...');
+      // console.log('🔐 Initializing encryption service...');
       
       // Try to load existing master key
       const { value: existingKey } = await Preferences.get({ key: this.MASTER_KEY_STORAGE });
       
       if (existingKey) {
         this.masterKey = existingKey;
-        console.log('✅ Loaded existing master key');
+        // console.log('✅ Loaded existing master key');
       } else {
         // Generate new master key
         this.masterKey = this.generateMasterKey();
         await this.storeMasterKey(this.masterKey);
-        console.log('✅ Generated new master key');
+        // console.log('✅ Generated new master key');
       }
     } catch (error) {
-      console.error('❌ Failed to initialize encryption service:', error);
+      // console.error('❌ Failed to initialize encryption service:', error);
       throw new Error('Encryption service initialization failed');
     }
   }
@@ -118,14 +118,14 @@ export class EncryptionService {
         padding: CryptoJS.pad.Pkcs7
       });
 
-      console.log(`🔒 Data encrypted successfully (${data.length} bytes -> ${encrypted.toString().length} bytes)`);
+      // console.log(`🔒 Data encrypted successfully (${data.length} bytes -> ${encrypted.toString().length} bytes)`);
 
       return {
         encryptedData: encrypted.toString(),
         salt: salt
       };
     } catch (error) {
-      console.error('❌ Encryption failed:', error);
+      // console.error('❌ Encryption failed:', error);
       throw new Error('Failed to encrypt data');
     }
   }
@@ -163,11 +163,11 @@ export class EncryptionService {
         throw new Error('Decryption resulted in empty string');
       }
 
-      console.log(`🔓 Data decrypted successfully (${encryptedData.length} bytes -> ${decryptedString.length} bytes)`);
+      // console.log(`🔓 Data decrypted successfully (${encryptedData.length} bytes -> ${decryptedString.length} bytes)`);
       
       return decryptedString;
     } catch (error) {
-      console.error('❌ Decryption failed:', error);
+      // console.error('❌ Decryption failed:', error);
       throw new Error('Failed to decrypt data');
     }
   }
@@ -198,7 +198,7 @@ export class EncryptionService {
   clearSensitiveData(): void {
     // Clear master key from memory
     this.masterKey = null;
-    console.log('🧹 Sensitive data cleared from memory');
+    // console.log('🧹 Sensitive data cleared from memory');
   }
 
   /**
@@ -208,9 +208,9 @@ export class EncryptionService {
     try {
       await Preferences.remove({ key: this.MASTER_KEY_STORAGE });
       this.masterKey = null;
-      console.log('🔄 Encryption service reset');
+      // console.log('🔄 Encryption service reset');
     } catch (error) {
-      console.error('❌ Failed to reset encryption service:', error);
+      // console.error('❌ Failed to reset encryption service:', error);
       throw error;
     }
   }
@@ -225,11 +225,11 @@ export class EncryptionService {
       const decryptedData = this.decryptData(encryptedData, salt, 'test-attachment');
       
       const isValid = decryptedData === testData;
-      console.log(isValid ? '✅ Encryption validation passed' : '❌ Encryption validation failed');
+      // console.log(isValid ? '✅ Encryption validation passed' : '❌ Encryption validation failed');
       
       return isValid;
     } catch (error) {
-      console.error('❌ Encryption validation error:', error);
+      // console.error('❌ Encryption validation error:', error);
       return false;
     }
   }

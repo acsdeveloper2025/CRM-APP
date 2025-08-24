@@ -178,14 +178,11 @@ export const useWebSocket = (options: UseWebSocketOptions = {}): UseWebSocketRet
       },
 
       onCaseAssigned: async (notification) => {
-        console.log('📋 Case assigned notification received:', notification);
-
         // Show local notification
         await showCaseAssignmentNotification(notification);
 
         // Trigger intelligent sync for real-time updates
         const syncResult = await caseService.forceSyncCases();
-        console.log('🔄 Real-time sync result:', syncResult);
 
         // Refresh case list in UI
         await callbacksRef.current.fetchCases();
@@ -195,14 +192,11 @@ export const useWebSocket = (options: UseWebSocketOptions = {}): UseWebSocketRet
       },
 
       onCaseStatusChanged: async (notification) => {
-        console.log('📊 Case status changed notification received:', notification);
-
         // Show local notification
         await showCaseStatusChangeNotification(notification);
 
         // Trigger intelligent sync for real-time updates
         const syncResult = await caseService.forceSyncCases();
-        console.log('🔄 Real-time sync result:', syncResult);
 
         // Refresh case list in UI
         await callbacksRef.current.fetchCases();
@@ -212,14 +206,11 @@ export const useWebSocket = (options: UseWebSocketOptions = {}): UseWebSocketRet
       },
 
       onCasePriorityChanged: async (notification) => {
-        console.log('⚡ Case priority changed notification received:', notification);
-
         // Show local notification for high priority cases
         await showCasePriorityChangeNotification(notification);
 
         // Trigger intelligent sync for real-time updates
         const syncResult = await caseService.forceSyncCases();
-        console.log('🔄 Real-time sync result:', syncResult);
 
         // Refresh case list in UI
         await callbacksRef.current.fetchCases();

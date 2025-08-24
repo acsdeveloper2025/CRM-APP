@@ -15,8 +15,7 @@ export const NewCasePage: React.FC = () => {
   const editCaseId = searchParams.get('edit');
   const isEditMode = !!editCaseId;
 
-  console.log('NewCasePage - Edit case ID from URL:', editCaseId);
-  console.log('NewCasePage - Is edit mode:', isEditMode);
+
 
 
 
@@ -60,8 +59,6 @@ export const NewCasePage: React.FC = () => {
         const caseItem = caseData.data;
         const pincodes = pincodesResponse.data;
         
-        console.log('Mapping case data for edit:', caseItem);
-
         // Find pincode ID based on pincode code
         const foundPincode = pincodes.find(p => p.code === caseItem.pincode);
         let pincodeId = foundPincode?.id?.toString() || '';
@@ -75,13 +72,6 @@ export const NewCasePage: React.FC = () => {
             fallbackId: pincodeId
           });
         }
-        
-        console.log('NewCasePage - Pincode mapping:', {
-          caseItemPincode: caseItem.pincode,
-          availablePincodes: pincodes.map(p => ({ id: p.id, code: p.code })),
-          foundPincode,
-          finalPincodeId: pincodeId
-        });
 
         // For areas, use the first available area if loaded, otherwise empty
         const areaId = areasResponse?.data && areasResponse.data.length > 0 ? areasResponse.data[0].id.toString() : '';
@@ -116,8 +106,7 @@ export const NewCasePage: React.FC = () => {
           areaId: areaId,
         };
 
-        console.log('Mapped customer info:', customerInfo);
-        console.log('Mapped case form data:', caseFormData);
+
 
         setInitialData({
           customerInfo,

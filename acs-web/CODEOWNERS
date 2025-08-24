@@ -13,14 +13,10 @@
 /package.json @acs-frontend-team
 /package-lock.json @acs-frontend-team
 /.env.example @acs-frontend-team
-/next.config.js @acs-frontend-team
+/vite.config.ts @acs-frontend-team
 /tailwind.config.js @acs-frontend-team @acs-design-team
-/docker* @acs-devops-team
 
-# Testing
-/cypress/ @acs-frontend-team @acs-qa-team
-/playwright/ @acs-frontend-team @acs-qa-team
-/__tests__/ @acs-frontend-team
+
 
 # Documentation
 /README.md @acs-team

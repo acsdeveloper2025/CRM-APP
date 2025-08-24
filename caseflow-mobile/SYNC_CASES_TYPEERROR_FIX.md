@@ -51,7 +51,7 @@ const syncCases = async () => {
     if (result.success) {
       // Refresh cases from local storage after successful sync
       await fetchCases(); // ← Proper way to update UI
-      console.log(`✅ Sync completed: ${result.newCases} new cases, ${result.updatedCases} updated cases`);
+      // console.log(`✅ Sync completed: ${result.newCases} new cases, ${result.updatedCases} updated cases`);
     } else {
       throw new Error(result.error || 'Sync failed');
     }
@@ -110,7 +110,7 @@ The correct flow is now:
 ```
 
 ### After Fix:
-```bash
+```
 ✅ No compilation errors
 ✅ Sync calls correct service method
 ✅ Proper handling of sync results

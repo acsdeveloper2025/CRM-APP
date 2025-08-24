@@ -49,14 +49,14 @@ export class OfflineAttachmentService {
    */
   async initialize(): Promise<void> {
     try {
-      console.log('📱 Initializing offline attachment service...');
+      // console.log('📱 Initializing offline attachment service...');
       
       // Initialize secure storage
       await secureStorageService.initialize();
       
-      console.log('✅ Offline attachment service initialized');
+      // console.log('✅ Offline attachment service initialized');
     } catch (error) {
-      console.error('❌ Failed to initialize offline attachment service:', error);
+      // console.error('❌ Failed to initialize offline attachment service:', error);
       throw error;
     }
   }
@@ -76,7 +76,7 @@ export class OfflineAttachmentService {
     }
   ): Promise<boolean> {
     try {
-      console.log(`⬇️ Downloading attachment for offline access: ${metadata.name}`);
+      // console.log(`⬇️ Downloading attachment for offline access: ${metadata.name}`);
 
       // Update download status
       this.updateDownloadStatus(attachmentId, 'downloading', 0);
@@ -84,7 +84,7 @@ export class OfflineAttachmentService {
       // Check if already downloaded
       const existingAttachment = await secureStorageService.getAttachmentMetadata(attachmentId);
       if (existingAttachment) {
-        console.log(`✅ Attachment already available offline: ${attachmentId}`);
+        // console.log(`✅ Attachment already available offline: ${attachmentId}`);
         this.updateDownloadStatus(attachmentId, 'completed', 100);
         return true;
       }
@@ -105,11 +105,11 @@ export class OfflineAttachmentService {
       });
 
       this.updateDownloadStatus(attachmentId, 'completed', 100);
-      console.log(`✅ Attachment downloaded and stored offline: ${attachmentId}`);
+      // console.log(`✅ Attachment downloaded and stored offline: ${attachmentId}`);
       
       return true;
     } catch (error) {
-      console.error(`❌ Failed to download attachment ${attachmentId}:`, error);
+      // console.error(`❌ Failed to download attachment ${attachmentId}:`, error);
       this.updateDownloadStatus(attachmentId, 'failed', 0, error.message);
       return false;
     }
@@ -120,19 +120,19 @@ export class OfflineAttachmentService {
    */
   async getOfflineAttachment(attachmentId: string): Promise<string | null> {
     try {
-      console.log(`📱 Getting offline attachment: ${attachmentId}`);
+      // console.log(`📱 Getting offline attachment: ${attachmentId}`);
       
       const content = await secureStorageService.retrieveAttachment(attachmentId);
       
       if (content) {
-        console.log(`✅ Offline attachment retrieved: ${attachmentId}`);
+        // console.log(`✅ Offline attachment retrieved: ${attachmentId}`);
       } else {
-        console.log(`❌ Offline attachment not found: ${attachmentId}`);
+        // console.log(`❌ Offline attachment not found: ${attachmentId}`);
       }
       
       return content;
     } catch (error) {
-      console.error(`❌ Failed to get offline attachment ${attachmentId}:`, error);
+      // console.error(`❌ Failed to get offline attachment ${attachmentId}:`, error);
       return null;
     }
   }
@@ -145,7 +145,7 @@ export class OfflineAttachmentService {
       const metadata = await secureStorageService.getAttachmentMetadata(attachmentId);
       return metadata !== null;
     } catch (error) {
-      console.error(`❌ Failed to check offline availability for ${attachmentId}:`, error);
+      // console.error(`❌ Failed to check offline availability for ${attachmentId}:`, error);
       return false;
     }
   }
@@ -169,7 +169,7 @@ export class OfflineAttachmentService {
         lastSyncedAt: attachment.lastAccessed
       }));
     } catch (error) {
-      console.error('❌ Failed to get offline attachments:', error);
+      // console.error('❌ Failed to get offline attachments:', error);
       return [];
     }
   }
@@ -179,19 +179,19 @@ export class OfflineAttachmentService {
    */
   async removeOfflineAttachment(attachmentId: string): Promise<boolean> {
     try {
-      console.log(`🗑️ Removing offline attachment: ${attachmentId}`);
+      // console.log(`🗑️ Removing offline attachment: ${attachmentId}`);
       
       const success = await secureStorageService.deleteAttachment(attachmentId);
       
       if (success) {
-        console.log(`✅ Offline attachment removed: ${attachmentId}`);
+        // console.log(`✅ Offline attachment removed: ${attachmentId}`);
       } else {
-        console.log(`❌ Failed to remove offline attachment: ${attachmentId}`);
+        // console.log(`❌ Failed to remove offline attachment: ${attachmentId}`);
       }
       
       return success;
     } catch (error) {
-      console.error(`❌ Failed to remove offline attachment ${attachmentId}:`, error);
+      // console.error(`❌ Failed to remove offline attachment ${attachmentId}:`, error);
       return false;
     }
   }
@@ -201,13 +201,13 @@ export class OfflineAttachmentService {
    */
   async syncAttachments(caseIds: string[]): Promise<{ success: number; failed: number }> {
     if (this.syncInProgress) {
-      console.log('⏳ Sync already in progress');
+      // console.log('⏳ Sync already in progress');
       return { success: 0, failed: 0 };
     }
 
     try {
       this.syncInProgress = true;
-      console.log('🔄 Starting attachment sync...');
+      // console.log('🔄 Starting attachment sync...');
 
       let successCount = 0;
       let failedCount = 0;
@@ -241,15 +241,15 @@ export class OfflineAttachmentService {
             }
           }
         } catch (error) {
-          console.error(`❌ Failed to sync attachments for case ${caseId}:`, error);
+          // console.error(`❌ Failed to sync attachments for case ${caseId}:`, error);
           failedCount++;
         }
       }
 
-      console.log(`✅ Sync completed: ${successCount} success, ${failedCount} failed`);
+      // console.log(`✅ Sync completed: ${successCount} success, ${failedCount} failed`);
       return { success: successCount, failed: failedCount };
     } catch (error) {
-      console.error('❌ Attachment sync failed:', error);
+      // console.error('❌ Attachment sync failed:', error);
       return { success: 0, failed: 1 };
     } finally {
       this.syncInProgress = false;
@@ -283,7 +283,7 @@ export class OfflineAttachmentService {
    */
   async clearAllOfflineAttachments(): Promise<boolean> {
     try {
-      console.log('🧹 Clearing all offline attachments...');
+      // console.log('🧹 Clearing all offline attachments...');
       
       const attachments = await secureStorageService.listAttachments();
       let successCount = 0;
@@ -296,10 +296,10 @@ export class OfflineAttachmentService {
       // Clear cache
       secureStorageService.clearCache();
       
-      console.log(`✅ Cleared ${successCount} offline attachments`);
+      // console.log(`✅ Cleared ${successCount} offline attachments`);
       return successCount === attachments.length;
     } catch (error) {
-      console.error('❌ Failed to clear offline attachments:', error);
+      // console.error('❌ Failed to clear offline attachments:', error);
       return false;
     }
   }

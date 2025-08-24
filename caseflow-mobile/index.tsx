@@ -33,7 +33,6 @@ MobileLogger.setOriginalConsole(originalConsole);
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const bind = (fn?: (...args: any[]) => void, fallback?: (...args: any[]) => void) => (...args: any[]) => (fn || fallback)?.(...args);
-console.log = bind((...a) => MobileLogger.log(...a));
 console.debug = bind((...a) => MobileLogger.debug(...a));
 console.info = bind((...a) => MobileLogger.log(...a));
 console.warn = bind((...a) => MobileLogger.warn(...a));
@@ -46,7 +45,6 @@ import App from './App';
 
 const container = document.getElementById('root');
 if (!container) {
-  console.error('Root container not found!');
   throw new Error('Root container not found');
 }
 
@@ -55,6 +53,5 @@ const root = createRoot(container);
 try {
   root.render(<App />);
 } catch (error) {
-  console.error('Error rendering App:', error);
   throw error;
 }

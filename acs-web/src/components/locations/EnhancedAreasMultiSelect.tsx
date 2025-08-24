@@ -70,11 +70,7 @@ export function EnhancedAreasMultiSelect({
     if (queryError) {
       console.error('EnhancedAreasMultiSelect Error:', queryError);
     }
-    if (allAreas.length > 0) {
-      console.log('🔍 Areas data:', allAreas);
-      console.log('🔍 Processed options:', areaOptions);
-    }
-  }, [queryError, allAreas, areaOptions]);
+  }, [queryError]);
 
   return (
     <div className="space-y-2">

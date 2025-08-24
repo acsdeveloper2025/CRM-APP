@@ -340,10 +340,10 @@ export function FormViewerPage() {
             showLocation={true}
             showMetadata={true}
             onFieldChange={(fieldId, value) => {
-              console.log('Field changed:', fieldId, value);
+              // Field change handler
             }}
             onSectionToggle={(sectionId, expanded) => {
-              console.log('Section toggled:', sectionId, expanded);
+              // Section toggle handler
             }}
           />
         </TabsContent>

@@ -41,7 +41,6 @@ export const SecurityWrapper: React.FC<SecurityWrapperProps> = ({
       if (Capacitor.isNativePlatform()) {
         // For native platforms, we would use native plugins
         // This is a placeholder for actual implementation
-        console.log('🔒 Enabling native security measures...');
         
         // Prevent screenshots on Android/iOS
         await preventScreenshots();
@@ -54,7 +53,6 @@ export const SecurityWrapper: React.FC<SecurityWrapperProps> = ({
       }
       
       setIsSecure(true);
-      console.log('✅ Security measures enabled');
     } catch (error) {
       console.error('❌ Failed to enable security measures:', error);
       setShowSecurityWarning(true);
@@ -67,7 +65,6 @@ export const SecurityWrapper: React.FC<SecurityWrapperProps> = ({
   const disableSecurityMeasures = async () => {
     try {
       if (Capacitor.isNativePlatform()) {
-        console.log('🔓 Disabling native security measures...');
         // Restore normal screenshot capability
         await allowScreenshots();
       } else {
@@ -75,9 +72,7 @@ export const SecurityWrapper: React.FC<SecurityWrapperProps> = ({
       }
       
       setIsSecure(false);
-      console.log('✅ Security measures disabled');
     } catch (error) {
-      console.error('❌ Failed to disable security measures:', error);
     }
   };
 
@@ -87,14 +82,12 @@ export const SecurityWrapper: React.FC<SecurityWrapperProps> = ({
   const preventScreenshots = async () => {
     // This would use a native plugin like @capacitor-community/privacy-screen
     // For demo purposes, we'll simulate this
-    console.log('📱 Screenshot prevention enabled');
   };
 
   /**
    * Allow screenshots on native platforms
    */
   const allowScreenshots = async () => {
-    console.log('📱 Screenshot prevention disabled');
   };
 
   /**
@@ -102,7 +95,6 @@ export const SecurityWrapper: React.FC<SecurityWrapperProps> = ({
    */
   const detectScreenRecording = async () => {
     // This would use native APIs to detect screen recording
-    console.log('🎥 Screen recording detection enabled');
   };
 
   /**
@@ -124,7 +116,7 @@ export const SecurityWrapper: React.FC<SecurityWrapperProps> = ({
     // Disable developer tools (limited effectiveness)
     document.addEventListener('keydown', preventDevTools);
     
-    console.log('🌐 Web security measures enabled');
+
   };
 
   /**
@@ -137,7 +129,7 @@ export const SecurityWrapper: React.FC<SecurityWrapperProps> = ({
     document.removeEventListener('keydown', handleKeyDown);
     document.removeEventListener('keydown', preventDevTools);
     
-    console.log('🌐 Web security measures disabled');
+
   };
 
   /**
@@ -172,7 +164,7 @@ export const SecurityWrapper: React.FC<SecurityWrapperProps> = ({
     if (e.key === 'PrintScreen') {
       e.preventDefault();
       onSecurityViolation?.('screenshot');
-      console.warn('🚨 Screenshot attempt detected');
+
       return false;
     }
   };
@@ -188,7 +180,7 @@ export const SecurityWrapper: React.FC<SecurityWrapperProps> = ({
       (e.ctrlKey && e.key === 'U')
     ) {
       e.preventDefault();
-      console.warn('🚨 Developer tools access attempt detected');
+
       return false;
     }
   };

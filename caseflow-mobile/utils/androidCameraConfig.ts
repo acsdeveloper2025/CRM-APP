@@ -38,13 +38,13 @@ export const getAndroidCameraConfig = (
     height: 1024
   };
 
-  console.log('📱 Android camera config:', {
-    platform: 'android',
-    direction: cameraDirection,
-    quality: config.quality,
-    saveToGallery: config.saveToGallery,
-    resultType: 'DataUrl'
-  });
+  // console.log('📱 Android camera config:', {
+  //   platform: 'android',
+  //   direction: cameraDirection,
+  //   quality: config.quality,
+  //   saveToGallery: config.saveToGallery,
+  //   resultType: 'DataUrl'
+  // });
 
   return config;
 };
@@ -114,7 +114,7 @@ export const checkAndroidCameraAvailability = async (): Promise<{
       hasPermission: true // Will be checked during actual camera access
     };
   } catch (error) {
-    console.error('❌ Android camera availability check failed:', error);
+    // console.error('❌ Android camera availability check failed:', error);
     return { 
       available: false, 
       hasPermission: false, 
@@ -131,7 +131,7 @@ const checkDeviceHasCamera = async (): Promise<boolean> => {
     // This is a basic check - actual camera availability is checked during use
     return true; // Most Android devices have cameras
   } catch (error) {
-    console.error('❌ Device camera check failed:', error);
+    // console.error('❌ Device camera check failed:', error);
     return false;
   }
 };

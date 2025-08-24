@@ -16,15 +16,11 @@ class AttachmentService {
     if (this.initialized) return;
 
     try {
-      console.log('📎 Initializing attachment service...');
-
       // Initialize offline attachment service
       await offlineAttachmentService.initialize();
 
       this.initialized = true;
-      console.log('✅ Attachment service initialized with offline capabilities');
     } catch (error) {
-      console.error('❌ Failed to initialize attachment service:', error);
       throw error;
     }
   }
@@ -34,7 +30,6 @@ class AttachmentService {
    */
   setOfflineMode(offline: boolean): void {
     this.isOfflineMode = offline;
-    console.log(`📱 Offline mode: ${offline ? 'enabled' : 'disabled'}`);
   }
 
   /**
@@ -42,19 +37,15 @@ class AttachmentService {
    */
   async getCaseAttachments(caseId: string): Promise<Attachment[]> {
     try {
-      console.log(`📎 Fetching attachments for case ${caseId}...`);
-      
       // Simulate API call with realistic loading time
       await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 400));
       
       // Generate realistic attachments based on case ID for consistent demo data
       const attachments = this.generateRealisticAttachments(caseId);
       
-      console.log(`✅ Found ${attachments.length} attachments for case ${caseId}`);
       return attachments;
       
     } catch (error) {
-      console.error(`❌ Failed to fetch attachments for case ${caseId}:`, error);
       throw new Error('Failed to load attachments. Please check your connection and try again.');
     }
   }
@@ -64,15 +55,12 @@ class AttachmentService {
    */
   async getAttachmentContent(attachment: Attachment): Promise<string> {
     try {
-      console.log(`📎 Loading content for attachment: ${attachment.name}`);
-
       // Ensure service is initialized
       await this.initialize();
 
       // Try to get from offline storage first
       const offlineContent = await offlineAttachmentService.getOfflineAttachment(attachment.id);
       if (offlineContent) {
-        console.log(`📱 Retrieved from offline storage: ${attachment.name}`);
         return offlineContent;
       }
 
@@ -102,7 +90,6 @@ class AttachmentService {
       return content;
 
     } catch (error) {
-      console.error(`❌ Failed to load attachment content:`, error);
       throw new Error(`Failed to load ${attachment.name}. Please try again.`);
     }
   }
@@ -123,9 +110,7 @@ class AttachmentService {
           caseId: caseId || 'unknown'
         }
       );
-      console.log(`📱 Stored attachment for offline access: ${attachment.name}`);
     } catch (error) {
-      console.warn(`⚠️ Failed to store attachment for offline access: ${attachment.name}`, error);
     }
   }
 
@@ -153,7 +138,6 @@ class AttachmentService {
 
       return true;
     } catch (error) {
-      console.error(`❌ Failed to download attachment for offline: ${attachment.name}`, error);
       return false;
     }
   }
@@ -327,8 +311,6 @@ class AttachmentService {
   private generateSecurePdfContent(attachment: Attachment): string {
     // For demo purposes, create a working PDF data URL
     // In production, this would fetch actual PDF content from secure endpoints
-
-    console.log(`📄 Generating PDF content for: ${attachment.name}`);
 
     // Try to use the download.pdf file if available, otherwise use embedded content
     if (this.isDownloadPdfAvailable()) {
@@ -623,8 +605,6 @@ ${500 + this.calculateContentLength(docInfo)}
    * Debug method to test PDF generation
    */
   testPdfGeneration(): void {
-    console.log('🧪 Testing PDF generation...');
-
     const testAttachment: Attachment = {
       id: 'test-pdf',
       name: 'Property_Documents.pdf',
@@ -638,25 +618,17 @@ ${500 + this.calculateContentLength(docInfo)}
 
     try {
       const pdfContent = this.generateSecurePdfContent(testAttachment);
-      console.log('✅ PDF generation successful');
-      console.log('📄 Content type:', pdfContent.startsWith('data:') ? 'Data URL' : 'File Path');
-      console.log('📏 Content length:', pdfContent.length);
 
       if (pdfContent.startsWith('data:application/pdf;base64,')) {
-        console.log('✅ Valid PDF data URL format');
         const base64Data = pdfContent.split(',')[1];
-        console.log('📊 Base64 data length:', base64Data.length);
 
         // Test if base64 is valid
         try {
           atob(base64Data);
-          console.log('✅ Valid base64 encoding');
         } catch (e) {
-          console.error('❌ Invalid base64 encoding:', e);
         }
       }
     } catch (error) {
-      console.error('❌ PDF generation failed:', error);
     }
   }
 

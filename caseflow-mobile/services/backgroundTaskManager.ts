@@ -66,9 +66,6 @@ class BackgroundTaskManager {
     try {
       const permission = await LocalNotifications.requestPermissions();
       if (permission.display !== 'granted') {
-        console.warn('⚠️ Notification permissions not granted');
-      } else {
-        console.log('✅ Notification permissions granted');
       }
     } catch (error) {
       console.warn('Failed to request notification permissions:', error);
@@ -214,19 +211,16 @@ class BackgroundTaskManager {
   private setupAppStateListeners(): void {
     App.addListener('appStateChange', ({ isActive }) => {
       if (isActive) {
-        console.log('📱 App became active - starting background tasks');
         this.startAllTasks();
         
         // Run immediate health check when app becomes active
         this.runTaskImmediately('healthCheck');
       } else {
-        console.log('📱 App became inactive - stopping background tasks');
         this.stopAllTasks();
       }
     });
 
     App.addListener('resume', () => {
-      console.log('📱 App resumed - checking for pending tasks');
       this.checkPendingTasks();
     });
   }
@@ -259,7 +253,6 @@ class BackgroundTaskManager {
     const task = this.tasks.get(taskId);
     if (task) {
       try {
-        console.log(`🚀 Running task immediately: ${task.name}`);
         await task.handler();
         task.lastRun = Date.now();
       } catch (error) {

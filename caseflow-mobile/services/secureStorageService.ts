@@ -55,7 +55,7 @@ export class SecureStorageService {
    */
   async initialize(): Promise<void> {
     try {
-      console.log('💾 Initializing secure storage service...');
+      // console.log('💾 Initializing secure storage service...');
       
       // Initialize encryption service
       await encryptionService.initialize();
@@ -69,9 +69,9 @@ export class SecureStorageService {
       // Load storage statistics
       await this.loadStorageStats();
       
-      console.log('✅ Secure storage service initialized');
+      // console.log('✅ Secure storage service initialized');
     } catch (error) {
-      console.error('❌ Failed to initialize secure storage service:', error);
+      // console.error('❌ Failed to initialize secure storage service:', error);
       throw error;
     }
   }
@@ -90,7 +90,7 @@ export class SecureStorageService {
     }
   ): Promise<void> {
     try {
-      console.log(`💾 Storing attachment: ${metadata.originalName} (${metadata.size} bytes)`);
+      // console.log(`💾 Storing attachment: ${metadata.originalName} (${metadata.size} bytes)`);
 
       // Generate checksum for data integrity
       const checksum = await this.generateChecksum(data);
@@ -137,9 +137,9 @@ export class SecureStorageService {
       // Update storage statistics
       await this.updateStorageStats(metadata.size, encryptedData.length);
 
-      console.log(`✅ Attachment stored securely: ${attachmentId}`);
+      // console.log(`✅ Attachment stored securely: ${attachmentId}`);
     } catch (error) {
-      console.error(`❌ Failed to store attachment ${attachmentId}:`, error);
+      // console.error(`❌ Failed to store attachment ${attachmentId}:`, error);
       throw new Error(`Failed to store attachment: ${error.message}`);
     }
   }
@@ -149,12 +149,12 @@ export class SecureStorageService {
    */
   async retrieveAttachment(attachmentId: string): Promise<string | null> {
     try {
-      console.log(`🔍 Retrieving attachment: ${attachmentId}`);
+      // console.log(`🔍 Retrieving attachment: ${attachmentId}`);
 
       // Check cache first
       const cached = this.cache.get(attachmentId);
       if (cached && this.isCacheValid(cached.timestamp)) {
-        console.log(`⚡ Retrieved from cache: ${attachmentId}`);
+        // console.log(`⚡ Retrieved from cache: ${attachmentId}`);
         await this.updateLastAccessed(attachmentId);
         return cached.data;
       }
@@ -162,7 +162,7 @@ export class SecureStorageService {
       // Load metadata
       const metadata = await this.getAttachmentMetadata(attachmentId);
       if (!metadata) {
-        console.log(`❌ Attachment metadata not found: ${attachmentId}`);
+        // console.log(`❌ Attachment metadata not found: ${attachmentId}`);
         return null;
       }
 
@@ -172,7 +172,7 @@ export class SecureStorageService {
       });
 
       if (!encryptedData) {
-        console.log(`❌ Encrypted data not found: ${attachmentId}`);
+        // console.log(`❌ Encrypted data not found: ${attachmentId}`);
         return null;
       }
 
@@ -198,10 +198,10 @@ export class SecureStorageService {
       // Update last accessed time
       await this.updateLastAccessed(attachmentId);
 
-      console.log(`✅ Attachment retrieved and decrypted: ${attachmentId}`);
+      // console.log(`✅ Attachment retrieved and decrypted: ${attachmentId}`);
       return decryptedData;
     } catch (error) {
-      console.error(`❌ Failed to retrieve attachment ${attachmentId}:`, error);
+      // console.error(`❌ Failed to retrieve attachment ${attachmentId}:`, error);
       throw new Error(`Failed to retrieve attachment: ${error.message}`);
     }
   }
@@ -231,7 +231,7 @@ export class SecureStorageService {
    */
   async deleteAttachment(attachmentId: string): Promise<boolean> {
     try {
-      console.log(`🗑️ Deleting attachment: ${attachmentId}`);
+      // console.log(`🗑️ Deleting attachment: ${attachmentId}`);
 
       // Get metadata for size calculation
       const metadata = await this.getAttachmentMetadata(attachmentId);
@@ -250,10 +250,10 @@ export class SecureStorageService {
         await this.updateStorageStats(-metadata.size, -metadata.encryptedData.length);
       }
 
-      console.log(`✅ Attachment deleted: ${attachmentId}`);
+      // console.log(`✅ Attachment deleted: ${attachmentId}`);
       return true;
     } catch (error) {
-      console.error(`❌ Failed to delete attachment ${attachmentId}:`, error);
+      // console.error(`❌ Failed to delete attachment ${attachmentId}:`, error);
       return false;
     }
   }
@@ -282,7 +282,7 @@ export class SecureStorageService {
         new Date(b.lastAccessed).getTime() - new Date(a.lastAccessed).getTime()
       );
     } catch (error) {
-      console.error('❌ Failed to list attachments:', error);
+      // console.error('❌ Failed to list attachments:', error);
       return [];
     }
   }
@@ -374,7 +374,7 @@ export class SecureStorageService {
    */
   clearCache(): void {
     this.cache.clear();
-    console.log('🧹 Cache cleared');
+    // console.log('🧹 Cache cleared');
   }
 
   /**
@@ -382,7 +382,7 @@ export class SecureStorageService {
    */
   async cleanup(maxAge: number = 30 * 24 * 60 * 60 * 1000): Promise<number> {
     try {
-      console.log('🧹 Starting attachment cleanup...');
+      // console.log('🧹 Starting attachment cleanup...');
       
       const attachments = await this.listAttachments();
       const cutoffDate = new Date(Date.now() - maxAge);
@@ -404,10 +404,10 @@ export class SecureStorageService {
         value: JSON.stringify(stats)
       });
 
-      console.log(`✅ Cleanup completed: ${deletedCount} attachments removed`);
+      // console.log(`✅ Cleanup completed: ${deletedCount} attachments removed`);
       return deletedCount;
     } catch (error) {
-      console.error('❌ Cleanup failed:', error);
+      // console.error('❌ Cleanup failed:', error);
       return 0;
     }
   }

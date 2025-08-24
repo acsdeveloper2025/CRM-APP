@@ -153,7 +153,6 @@ export function AreaSelector({
                   {uniqueAreaNames.length > 0 && (
                     <CommandGroup heading="Existing Areas">
                       {uniqueAreaNames.map((areaName) => {
-                        console.log('AreaSelector - Rendering area:', areaName);
                         const isSelected = selectedAreas.includes(areaName);
                         const areaUsageCount = availableAreas.filter(
                           area => area.name === areaName

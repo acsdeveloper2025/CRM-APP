@@ -18,14 +18,10 @@ function GlobalWebSocket() {
     autoConnect: true,
     onNotification: (notification) => {
       // Handle global notifications
-      console.log('Global notification:', notification);
     },
   });
   
-  // Log connection status for debugging
-  useEffect(() => {
-    console.log('Global WebSocket connection status:', isConnected ? 'Connected' : 'Disconnected');
-  }, [isConnected]);
+
   
   return null;
 }

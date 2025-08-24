@@ -155,11 +155,11 @@ class DataCleanupService {
         await this.sendCleanupNotification(result);
       }
 
-      console.log('✅ Data cleanup completed:', result);
+      // console.log('✅ Data cleanup completed:', result);
       return result;
 
     } catch (error) {
-      console.error('❌ Data cleanup failed:', error);
+      // console.error('❌ Data cleanup failed:', error);
       result.success = false;
       result.errors.push(error.message);
       return result;
@@ -265,7 +265,7 @@ class DataCleanupService {
             }
             result.deletedFiles++;
             result.deletedSize += stat.size;
-            console.log(`🗑️ Deleted expired file: ${dirName}/${file.name}`);
+            // console.log(`🗑️ Deleted expired file: ${dirName}/${file.name}`);
           }
         } catch (error) {
           result.errors.push(`Failed to process file ${file.name}: ${error.message}`);
@@ -391,7 +391,7 @@ class DataCleanupService {
         }]
       });
     } catch (error) {
-      console.warn('Failed to schedule cleanup notifications:', error);
+      // console.warn('Failed to schedule cleanup notifications:', error);
     }
   }
 
@@ -454,7 +454,7 @@ class DataCleanupService {
         value: 'true'
       });
     } catch (error) {
-      console.warn('Failed to send user notification:', error);
+      // console.warn('Failed to send user notification:', error);
     }
   }
 
@@ -482,7 +482,7 @@ class DataCleanupService {
         }]
       });
     } catch (error) {
-      console.warn('Failed to send cleanup notification:', error);
+      // console.warn('Failed to send cleanup notification:', error);
     }
   }
 
@@ -504,7 +504,7 @@ class DataCleanupService {
         value: JSON.stringify(recentLogs)
       });
     } catch (error) {
-      console.warn('Failed to log cleanup result:', error);
+      // console.warn('Failed to log cleanup result:', error);
     }
   }
 
@@ -592,3 +592,5 @@ class DataCleanupService {
 
 // Export singleton instance
 export const dataCleanupService = DataCleanupService.getInstance();
+
+

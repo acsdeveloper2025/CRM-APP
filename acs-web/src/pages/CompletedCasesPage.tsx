@@ -60,7 +60,6 @@ export const CompletedCasesPage: React.FC = () => {
 
   const handleExport = () => {
     // TODO: Implement export functionality
-    console.log('Export completed cases');
   };
 
   const hasActiveFilters = Object.entries(filters).some(([key, value]) => 

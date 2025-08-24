@@ -234,7 +234,6 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
 
                     <Select
                       onValueChange={(value) => {
-                        console.log('Role selected:', value);
                         field.onChange(value);
                       }}
                       value={field.value}
@@ -291,7 +290,6 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
 
                     <Select
                       onValueChange={(value) => {
-                        console.log('Designation selected:', value);
                         field.onChange(value);
                       }}
                       value={field.value}
@@ -331,7 +329,6 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
                     <FormLabel>Department</FormLabel>
                     <Select
                       onValueChange={(value) => {
-                        console.log('Department selected:', value);
                         field.onChange(value);
                       }}
                       value={field.value}

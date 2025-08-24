@@ -87,7 +87,6 @@ class CaseService {
 
     this.syncInterval = setInterval(async () => {
       if (!this.syncInProgress && navigator.onLine) {
-        console.log('🔄 Performing periodic sync (fallback)');
         await this.syncCases();
       }
     }, syncInterval);
@@ -122,11 +121,9 @@ class CaseService {
 
   async getCases(params: CaseListParams = {}): Promise<CaseListResponse> {
     try {
-      console.log('🔍 [CaseService] getCases called with params:', params);
       
       // If offline mode is enabled or no network, use local data
       if (this.useOfflineMode || !navigator.onLine) {
-        console.log('📴 [CaseService] Using offline mode or no network');
         const localCases = await this.getLocalCases();
         return this.filterAndPaginateLocalCases(localCases, params);
       }
@@ -143,37 +140,27 @@ class CaseService {
       if (params.assignedToMe) queryParams.append('assignedToMe', 'true');
 
       const apiUrl = `/mobile/cases?${queryParams.toString()}`;
-      console.log('📞 [CaseService] Making API call to:', apiUrl);
       
       const response = await apiClient.get<CaseListResponse>(apiUrl);
-      console.log('📊 [CaseService] API response:', { success: response.success, error: response.error });
 
       if (response.success && response.data) {
-        console.log('📋 [CaseService] Raw cases count:', response.data.cases.length);
         
         // Cache the cases locally for offline access
         await this.cacheApiCases(response.data.cases);
 
         // Transform mobile cases to Case interface for return
         const transformedCases = response.data.cases.map(mobileCase => this.transformMobileCaseToCase(mobileCase));
-        console.log('🔄 [CaseService] Transformed cases count:', transformedCases.length);
         
-        if (transformedCases.length > 0) {
-          console.log('📝 [CaseService] Sample transformed case:', transformedCases[0]);
-        }
-
         return {
           cases: transformedCases,
           pagination: response.data.pagination,
         };
       } else {
         // Fallback to local data if API fails
-        console.warn('⚠️ [CaseService] API request failed, falling back to local data:', response.error);
         const localCases = await this.getLocalCases();
         return this.filterAndPaginateLocalCases(localCases, params);
       }
     } catch (error) {
-      console.error('❌ [CaseService] Error fetching cases:', error);
       // Fallback to local data
       const localCases = await this.getLocalCases();
       return this.filterAndPaginateLocalCases(localCases, params);
@@ -191,7 +178,6 @@ class CaseService {
     );
 
     if (hasMigrations) {
-      console.log('Verification outcome migrations applied, saving updated cases...');
       await this.writeToStorage(migratedCases);
     }
 
@@ -249,7 +235,6 @@ class CaseService {
   }
 
   private transformMobileCaseToCase(mobileCase: any): Case {
-    console.log('🔄 [CaseService] Transforming mobile case:', mobileCase.id);
     
     // Handle verification type - keep original value if it's valid
     let verificationType = mobileCase.verificationType || 'Residence';
@@ -457,12 +442,10 @@ class CaseService {
   async revokeCase(id: string, reason: string): Promise<void> {
     const cases = await this.readFromStorage();
     const updatedCases = cases.filter(c => c.id !== id);
-    console.log(`Case ${id} revoked. Reason: ${reason}. Simulating sending to server.`);
     await this.writeToStorage(updatedCases);
   }
 
   async syncWithServer(): Promise<{ success: boolean; syncedCount: number; errors: string[] }> {
-    console.log("Starting sync with server...");
 
     try {
       if (!navigator.onLine) {
@@ -535,7 +518,6 @@ class CaseService {
   }
 
   async submitCase(id: string): Promise<{ success: boolean; error?: string }> {
-    console.log(`Attempting to submit case ${id} to server...`);
 
     try {
       // Update case status to submitting
@@ -568,7 +550,7 @@ class CaseService {
         status: CaseStatus.Completed,
       });
 
-      console.log(`Case ${id} submitted successfully`);
+
       return { success: true };
 
     } catch (error) {
@@ -591,7 +573,6 @@ class CaseService {
   }
 
   async resubmitCase(id: string): Promise<{ success: boolean; error?: string }> {
-    console.log(`Re-attempting to submit case ${id}...`);
     return this.submitCase(id);
   }
 
@@ -600,12 +581,10 @@ class CaseService {
    */
   async syncCases(): Promise<{ success: boolean; newCases: number; updatedCases: number; error?: string }> {
     if (this.syncInProgress) {
-      console.log('⏳ Sync already in progress, skipping...');
       return { success: false, newCases: 0, updatedCases: 0, error: 'Sync already in progress' };
     }
 
     if (!navigator.onLine) {
-      console.log('📴 Offline, skipping sync');
       return { success: false, newCases: 0, updatedCases: 0, error: 'Device is offline' };
     }
 
@@ -614,7 +593,6 @@ class CaseService {
     let updatedCases = 0;
 
     try {
-      console.log('🔄 Starting intelligent case sync...');
 
       // Get current local cases
       const localCases = await this.getLocalCases();
@@ -651,14 +629,14 @@ class CaseService {
         this.lastSyncTimestamp = new Date().toISOString();
         await AsyncStorage.setItem('lastSyncTimestamp', this.lastSyncTimestamp);
 
-        console.log(`✅ Sync completed: ${newCases} new cases, ${updatedCases} updated cases`);
+        // console.log(`✅ Sync completed: ${newCases} new cases, ${updatedCases} updated cases`);
         return { success: true, newCases, updatedCases };
       } else {
         throw new Error(response.error?.message || 'Sync failed');
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown sync error';
-      console.error('❌ Sync failed:', errorMessage);
+      // console.error('❌ Sync failed:', errorMessage);
       return { success: false, newCases, updatedCases, error: errorMessage };
     } finally {
       this.syncInProgress = false;
@@ -680,7 +658,7 @@ class CaseService {
    * Force sync - useful when triggered by WebSocket notifications
    */
   async forceSyncCases(): Promise<{ success: boolean; newCases: number; updatedCases: number; error?: string }> {
-    console.log('🚀 Force sync triggered (likely from WebSocket notification)');
+    // console.log('🚀 Force sync triggered (likely from WebSocket notification)');
     return this.syncCases();
   }
 

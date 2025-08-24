@@ -147,8 +147,6 @@ export const FullCaseFormStep: React.FC<FullCaseFormStepProps> = ({
   // Update form when initialData changes (for edit mode)
   useEffect(() => {
     if (editMode && initialData && Object.keys(initialData).length > 0) {
-      console.log('FullCaseFormStep - Updating form with initial data:', initialData);
-      
       const formData = {
         applicantType: initialData.applicantType || '',
         address: initialData.address || '',
@@ -165,7 +163,6 @@ export const FullCaseFormStep: React.FC<FullCaseFormStepProps> = ({
         priority: initialData.priority || 2,
       };
       
-      console.log('FullCaseFormStep - Form data being set:', formData);
       form.reset(formData);
     }
   }, [editMode, initialData, form, user]);
@@ -175,7 +172,6 @@ export const FullCaseFormStep: React.FC<FullCaseFormStepProps> = ({
     if (editMode && initialData?.productId && products.length > 0 && selectedClientId) {
       const productExists = products.some(p => p.id.toString() === initialData.productId);
       if (productExists && form.getValues('productId') !== initialData.productId) {
-        console.log('FullCaseFormStep - Setting productId after products loaded:', initialData.productId);
         form.setValue('productId', initialData.productId);
       }
     }
@@ -186,7 +182,6 @@ export const FullCaseFormStep: React.FC<FullCaseFormStepProps> = ({
     if (editMode && initialData?.verificationTypeId && verificationTypes.length > 0) {
       const verificationType = verificationTypes.find(vt => vt.id.toString() === initialData.verificationTypeId);
       if (verificationType && form.getValues('verificationType') !== verificationType.name) {
-        console.log('FullCaseFormStep - Setting verificationType after types loaded:', verificationType.name);
         form.setValue('verificationType', verificationType.name);
       }
     }
@@ -197,7 +192,6 @@ export const FullCaseFormStep: React.FC<FullCaseFormStepProps> = ({
     if (editMode && initialData?.pincodeId && pincodes.length > 0) {
       const pincodeExists = pincodes.some(p => p.id.toString() === initialData.pincodeId);
       if (pincodeExists && form.getValues('pincodeId') !== initialData.pincodeId) {
-        console.log('FullCaseFormStep - Setting pincodeId after pincodes loaded:', initialData.pincodeId);
         form.setValue('pincodeId', initialData.pincodeId);
       }
     }

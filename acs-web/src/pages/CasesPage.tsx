@@ -23,10 +23,7 @@ export const CasesPage: React.FC = () => {
   const updateStatusMutation = useUpdateCaseStatus();
   const assignCaseMutation = useAssignCase();
 
-  // Debug logging
-  console.log('CasesPage - casesData:', casesData);
-  console.log('CasesPage - isLoading:', isLoading);
-  console.log('CasesPage - error:', error);
+
 
   const cases = casesData?.data || [];
   const pagination = casesData?.pagination || {
@@ -80,7 +77,6 @@ export const CasesPage: React.FC = () => {
 
   const handleExport = () => {
     // TODO: Implement export functionality
-    console.log('Export cases with filters:', filters);
   };
 
   const handleRefresh = () => {

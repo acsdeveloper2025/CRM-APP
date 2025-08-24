@@ -30,7 +30,7 @@ export function migrateCaseVerificationOutcome(caseData: Case): Case {
   if (currentOutcome && OUTCOME_MIGRATION_MAP[currentOutcome]) {
     const newOutcome = OUTCOME_MIGRATION_MAP[currentOutcome];
     
-    console.log(`Migrating case ${caseData.id}: ${currentOutcome} -> ${newOutcome}`);
+    // console.log(`Migrating case ${caseData.id}: ${currentOutcome} -> ${newOutcome}`);
     
     return {
       ...caseData,
