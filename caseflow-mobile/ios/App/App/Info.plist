@@ -61,5 +61,12 @@
 	<string>This app needs local network access to communicate with verification services.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app may need microphone access for video verification features.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 </dict>
 </plist>

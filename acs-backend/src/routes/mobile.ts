@@ -7,6 +7,7 @@ import { MobileLocationController } from '../controllers/mobileLocationControlle
 import { MobileSyncController } from '../controllers/mobileSyncController';
 import { authenticateToken } from '../middleware/auth';
 import { validateMobileVersion, mobileRateLimit } from '../middleware/mobileValidation';
+import { platformAccessControl } from '../middleware/platformAccessControl';
 
 const router = Router();
 
@@ -14,7 +15,7 @@ const router = Router();
 router.use(mobileRateLimit(200, 15 * 60 * 1000)); // 200 requests per 15 minutes
 
 // Mobile Authentication Routes
-router.post('/auth/login', MobileAuthController.mobileLogin);
+router.post('/auth/login', platformAccessControl, MobileAuthController.mobileLogin);
 router.post('/auth/refresh', MobileAuthController.refreshToken);
 router.post('/auth/logout', authenticateToken, MobileAuthController.mobileLogout);
 router.post('/auth/version-check', MobileAuthController.checkVersion);

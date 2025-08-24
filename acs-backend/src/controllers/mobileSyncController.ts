@@ -128,9 +128,36 @@ export class MobileSyncController {
       const userRole = (req as any).user?.role;
       const { lastSyncTimestamp, limit = config.mobile.syncBatchSize } = req.query;
 
-      const syncTimestamp = lastSyncTimestamp 
-        ? new Date(lastSyncTimestamp as string)
-        : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // 30 days ago
+      let syncTimestamp: Date;
+      if (lastSyncTimestamp) {
+        syncTimestamp = new Date(lastSyncTimestamp as string);
+        // Validate that the date is valid
+        if (isNaN(syncTimestamp.getTime())) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid lastSyncTimestamp parameter',
+            error: {
+              code: 'INVALID_TIMESTAMP',
+              timestamp: new Date().toISOString(),
+            },
+          });
+        }
+      } else {
+        syncTimestamp = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // 30 days ago
+      }
+
+      // Validate limit parameter
+      const limitValue = Number(limit);
+      if (isNaN(limitValue) || limitValue <= 0 || limitValue > 1000) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid limit parameter. Must be a number between 1 and 1000.',
+          error: {
+            code: 'INVALID_LIMIT',
+            timestamp: new Date().toISOString(),
+          },
+        });
+      }
 
       // Get updated cases
       const where: any = {
@@ -147,7 +174,7 @@ export class MobileSyncController {
       if (where.assignedTo) { vals.push(where.assignedTo); wh.push(`c."assignedTo" = $${vals.length}`); }
       if (where.updatedAt?.gt) { vals.push(where.updatedAt.gt); wh.push(`c."updatedAt" > $${vals.length}`); }
       const whereSql = wh.length ? `WHERE ${wh.join(' AND ')}` : '';
-      vals.push(Number(limit));
+      vals.push(limitValue);
 
       const casesRes = await query(
         `SELECT c.*,
@@ -219,7 +246,7 @@ export class MobileSyncController {
       }));
 
       const deletedCaseIds = deletedCases.map(dc => dc.caseId);
-      const hasMore = updatedCases.length === Number(limit);
+      const hasMore = updatedCases.length === limitValue;
       const newSyncTimestamp = new Date().toISOString();
 
       const response: MobileSyncDownloadResponse = {

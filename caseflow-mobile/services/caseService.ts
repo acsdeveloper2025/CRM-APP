@@ -254,23 +254,60 @@ class CaseService {
     // Handle verification type - keep original value if it's valid
     let verificationType = mobileCase.verificationType || 'Residence';
     
+    // Ensure status matches CaseStatus enum values exactly
+    let status: CaseStatus;
+    switch (mobileCase.status?.toUpperCase()) {
+      case 'ASSIGNED':
+        status = CaseStatus.Assigned;
+        break;
+      case 'IN_PROGRESS':
+        status = CaseStatus.InProgress;
+        break;
+      case 'COMPLETED':
+        status = CaseStatus.Completed;
+        break;
+      case 'PENDING':
+        status = CaseStatus.Pending;
+        break;
+      default:
+        status = CaseStatus.Assigned; // Default to Assigned if unknown
+        break;
+    }
+    
+    // Convert priority from string to number
+    let priority: number | undefined;
+    switch (mobileCase.priority?.toUpperCase()) {
+      case 'HIGH':
+        priority = 3;
+        break;
+      case 'MEDIUM':
+        priority = 2;
+        break;
+      case 'LOW':
+        priority = 1;
+        break;
+      default:
+        priority = undefined;
+        break;
+    }
+    
     const transformedCase = {
       id: mobileCase.id,
       caseId: mobileCase.caseId?.toString(),
       title: mobileCase.title || `Case ${mobileCase.caseId || mobileCase.id}`,
       description: mobileCase.description || '',
       customer: {
-        name: mobileCase.customerName || '',
-        contact: mobileCase.customerPhone || '',
+        name: mobileCase.customerName || mobileCase.customer?.name || '',
+        contact: mobileCase.customerPhone || mobileCase.customer?.contact || '',
       },
-      status: mobileCase.status as CaseStatus,
+      status: status,
       isSaved: false,
       createdAt: mobileCase.assignedAt || new Date().toISOString(),
       updatedAt: mobileCase.updatedAt || new Date().toISOString(),
       completedAt: mobileCase.completedAt,
-      priority: mobileCase.priority,
+      priority: priority,
       verificationType: verificationType as VerificationType,
-      verificationOutcome: mobileCase.verificationOutcome as VerificationOutcome,
+      verificationOutcome: mobileCase.verificationOutcome as VerificationOutcome | null,
       // Assignment fields
       clientName: mobileCase.client?.name,
       applicantType: mobileCase.applicantType,
@@ -282,7 +319,7 @@ class CaseService {
       // Legacy fields
       product: mobileCase.product?.name,
       bankName: mobileCase.client?.name, // Use client name as bank name for now
-      visitAddress: `${mobileCase.addressStreet}, ${mobileCase.addressCity}, ${mobileCase.addressState} ${mobileCase.addressPincode}`.trim(),
+      visitAddress: `${mobileCase.addressStreet || ''}, ${mobileCase.addressCity || ''}, ${mobileCase.addressState || ''} ${mobileCase.addressPincode || ''}`.trim(),
       systemContactNumber: mobileCase.backendContactNumber,
       applicantStatus: mobileCase.applicantType,
       attachments: mobileCase.attachments || [],

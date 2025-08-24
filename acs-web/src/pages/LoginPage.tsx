@@ -8,9 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-
-
-import { Smartphone } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Smartphone, AlertCircle } from 'lucide-react';
 import type { LoginRequest } from '@/types/auth';
 
 const loginSchema = z.object({
@@ -26,6 +25,7 @@ export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { login, isAuthenticated, isLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
 
 
   const {
@@ -44,6 +44,7 @@ export const LoginPage: React.FC = () => {
 
   const onSubmit = async (data: LoginFormData) => {
     setIsSubmitting(true);
+    setLoginError(null);
     try {
       const success = await login(data as LoginRequest);
       if (success) {
@@ -51,6 +52,16 @@ export const LoginPage: React.FC = () => {
       }
     } catch (error: any) {
       console.error('Login error:', error);
+      // Handle platform access control errors
+      if (error.code === 'FIELD_AGENT_MOBILE_ONLY') {
+        setLoginError('Field Agents can only access the mobile application. Please use the mobile app to log in.');
+      } else if (error.code === 'NON_FIELD_AGENT_WEB_ONLY') {
+        setLoginError('This user type can only access the web application. Please use the web app to log in.');
+      } else if (error.message) {
+        setLoginError(error.message);
+      } else {
+        setLoginError('Login failed. Please check your credentials and try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -86,6 +97,12 @@ export const LoginPage: React.FC = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {loginError && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{loginError}</AlertDescription>
+              </Alert>
+            )}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="username">Username</Label>

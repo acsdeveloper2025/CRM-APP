@@ -3,6 +3,7 @@ import { body } from 'express-validator';
 import { login, logout, getCurrentUser, preloginInfo } from '@/controllers/authController';
 import { authenticateToken } from '@/middleware/auth';
 import { validate } from '@/middleware/validation';
+import { platformAccessControl } from '@/middleware/platformAccessControl';
 
 
 const router = Router();
@@ -30,7 +31,7 @@ const loginValidation = [
 
 // Routes
 router.post('/prelogin', [body('username').notEmpty().withMessage('Username is required')], validate, preloginInfo);
-router.post('/login', validate(loginValidation), login);
+router.post('/login', platformAccessControl, validate(loginValidation), login);
 router.post('/logout', authenticateToken, logout);
 router.get('/me', authenticateToken, getCurrentUser);
 

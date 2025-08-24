@@ -47,7 +47,14 @@ const NewLoginScreen: React.FC = () => {
       const result = await login(username, password);
 
       if (!result.success) {
-        Alert.alert('Authentication Failed', result.error || 'Invalid credentials. Please try again.');
+        // Handle platform access control errors
+        if (result.error?.code === 'NON_FIELD_AGENT_WEB_ONLY') {
+          Alert.alert('Platform Access Error', 'This user type can only access the web application. Please use the web app to log in.');
+        } else if (result.error?.code === 'FIELD_AGENT_MOBILE_ONLY') {
+          Alert.alert('Platform Access Error', 'Field Agents can only access the mobile application.');
+        } else {
+          Alert.alert('Authentication Failed', result.error?.message || 'Invalid credentials. Please try again.');
+        }
       }
       // If successful, the AuthContext will handle the navigation
     } catch (error) {

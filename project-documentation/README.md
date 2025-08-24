@@ -31,6 +31,7 @@ This directory contains comprehensive documentation for the CRM-APP project, org
 - **WEBSOCKET_CONNECTION_FIX_SUMMARY.md** - WebSocket connection fixes
 - **DOCKER_CLEANUP_SUMMARY.md** - Docker environment cleanup summary
 - **PORT_CONFIGURATION.md** - Port configuration and management
+- **PLATFORM_ACCESS_CONTROL.md** - Platform access control implementation
 
 ### 🔍 Audit Reports (`audit-reports/`)
 - **BACKEND_CODEBASE_FIXES_COMPLETED.md** - Backend codebase fixes and improvements

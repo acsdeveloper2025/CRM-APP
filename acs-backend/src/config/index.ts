@@ -5,13 +5,17 @@ dotenv.config();
 
 // Validate that we're using the correct fixed ports
 const validatePorts = () => {
-  const requiredPort = 3000;
-  const configuredPort = parseInt(process.env.PORT || '3000', 10);
+  // For Render deployment, we need to use the PORT environment variable
+  // Only validate fixed port in development
+  if (process.env.NODE_ENV === 'development') {
+    const requiredPort = 3000;
+    const configuredPort = parseInt(process.env.PORT || '3000', 10);
 
-  if (configuredPort !== requiredPort) {
-    console.error(`❌ Port mismatch: Backend must run on port ${requiredPort}, but PORT=${configuredPort} was configured.`);
-    console.error(`   Please update your environment to use PORT=${requiredPort} or remove the PORT environment variable.`);
-    process.exit(1);
+    if (configuredPort !== requiredPort) {
+      console.error(`❌ Port mismatch: Backend must run on port ${requiredPort}, but PORT=${configuredPort} was configured.`);
+      console.error(`   Please update your environment to use PORT=${requiredPort} or remove the PORT environment variable.`);
+      process.exit(1);
+    }
   }
 };
 
@@ -19,8 +23,8 @@ const validatePorts = () => {
 validatePorts();
 
 export const config = {
-  // Server - Fixed port 3000 (no automatic switching)
-  port: 3000,
+  // Server - Use Render's PORT or default to 3000
+  port: parseInt(process.env.PORT || '3000', 10),
   nodeEnv: process.env.NODE_ENV || 'development',
   
   // Database
@@ -39,7 +43,7 @@ export const config = {
   // CORS - Support both web app (5173) and mobile app (5174/5175)
   corsOrigin: process.env.CORS_ORIGIN
     ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
-    : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'],
+    : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'https://*.netlify.app'],
   
   // Rate Limiting - More generous limits
   rateLimitWindowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000', 10), // 15 minutes
@@ -65,7 +69,7 @@ export const config = {
   apnsTeamId: process.env.APNS_TEAM_ID || '',
   
   // WebSocket
-  wsPort: parseInt(process.env.WS_PORT || '3000', 10),
+  wsPort: parseInt(process.env.WS_PORT || process.env.PORT || '3000', 10),
   wsCorsOrigin: process.env.WS_CORS_ORIGIN || '*',
   wsHeartbeatInterval: parseInt(process.env.WS_HEARTBEAT_INTERVAL || '30000', 10),
   wsConnectionTimeout: parseInt(process.env.WS_CONNECTION_TIMEOUT || '60000', 10),

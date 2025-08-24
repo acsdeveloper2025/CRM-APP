@@ -78,6 +78,14 @@ Comprehensive project documentation is organized in the `project-documentation/`
 - **Audit Reports** - Codebase fixes, security audits, and compliance reports
 - **Setup Guides** - Detailed setup instructions and troubleshooting guides
 
+## Platform Access Control
+
+The CRM-APP implements platform access control to ensure:
+- Field Agents can ONLY access the mobile application
+- All other user types (Backend Users, Admins, Super Admins, etc.) can ONLY access the web application
+
+See [PLATFORM_ACCESS_CONTROL.md](PLATFORM_ACCESS_CONTROL.md) for detailed implementation information.
+
 ## Troubleshooting
 
 - **Port conflicts**: Ensure ports 3000, 5173, 5174, 5432, 6379 are available

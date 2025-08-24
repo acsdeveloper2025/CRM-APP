@@ -344,8 +344,8 @@ export const getApiConfig = () => {
       'Content-Type': 'application/json',
       'X-App-Version': config.app.version,
       'X-App-Environment': config.app.environment,
-      'X-Platform': 'WEB', // For web-based mobile app
-      'X-Device-ID': 'web-device-' + Date.now(), // Generate a device ID for web
+      'X-Platform': 'MOBILE', // For mobile app
+      'X-Device-ID': 'mobile-device-' + Date.now(), // Generate a device ID for mobile
     },
   };
 };

@@ -41,6 +41,7 @@ import rateTypesRoutes from '@/routes/rate-types';
 import rateTypeAssignmentsRoutes from '@/routes/rate-type-assignments';
 import ratesRoutes from '@/routes/rates';
 import territoryAssignmentsRoutes from '@/routes/territoryAssignments';
+import healthRoutes from '@/routes/health'; // Import health routes
 
 
 const app = express();
@@ -85,17 +86,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(generalRateLimit);
 
 // Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({
-    success: true,
-    message: 'Server is healthy',
-    data: {
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      environment: config.nodeEnv,
-    },
-  });
-});
+app.use('/health', healthRoutes);
 
 // API routes
 app.use('/api/auth', authRoutes);
