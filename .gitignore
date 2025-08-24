@@ -1,145 +1,188 @@
-# CRM-APP Global .gitignore
-
 # Dependencies
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
 
-# Build outputs
-dist/
-build/
+# Production
+/dist
+/build
+/out-tsc
+/.vite
+/.next
 .next/
-out/
 .nuxt/
-.output/
-
-# Environment files
-.env
-.env.local
-.env.development
-.env.development.local
-.env.test
-.env.test.local
-.env.production
-.env.production.local
-.env.staging
-*.key
-*.pem
-*.p12
-*.keystore
-*.jks
-
-# Runtime data
-pids/
-*.pid
-*.seed
-*.pid.lock
-
-# Coverage directory used by tools like istanbul
-coverage/
-*.lcov
-.nyc_output/
+.nuxt3/
 
 # Logs
-logs/
+logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
 
-# Database files
-*.db
-*.sqlite
-*.sqlite3
-
-# OS generated files
+# OS
 .DS_Store
+Thumbs.db
 .DS_Store?
 ._*
 .Spotlight-V100
 .Trashes
 ehthumbs.db
-Thumbs.db
-.AppleDouble
-.LSOverride
-Icon
-.DocumentRevisions-V100
-.fseventsd
-.TemporaryItems
-.VolumeIcon.icns
-.com.apple.timemachine.donotpresent
-.AppleDB
-.AppleDesktop
-Network Trash Folder
-Temporary Items
-.apdisk
+Desktop.ini
 
-# IDE and editor files
-.vscode/
-.idea/
+# IDEs and editors
+/.idea
+/.vscode
 *.swp
 *.swo
 *~
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+/.cursor
+/.augment
 
-# Cache directories
-.cache/
-.parcel-cache/
-.npm/
-.yarn-integrity
-.pnp.*
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
-.yarn/install-state.gz
+# Git
+.git
 
-# Test results
-test-results/
-cypress/videos/
-cypress/screenshots/
+# Environment files
+.env*
+!.env.example
+
+# Build outputs
+/dist/
+/build/
+/out/
+/public/dist/
+/.vite/
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# Testing
+/coverage
+/.nyc_output
+/junit.xml
+/cypress/screenshots
+/cypress/videos
+/playwright-report/
+/test-results/
 
 # Temporary files
-tmp/
-temp/
 *.tmp
 *.temp
+.tmp/
+.temp/
 
-# Application specific
-uploads/
-secrets/
-backups/
-monitoring/
-elk/
+# Documentation
+docs/
+/documentation/*.bundle
+/documentation/*.pdf
 
-# Mobile specific
-*.apk
-*.aab
-*.ipa
-CaseFlow-Mobile-*.apk
-android/app/build/outputs/
-android/app/release/
-ios/build/
-.capacitor/
-capacitor.config.json
+# Mobile app specific
+caseflow-mobile/platforms/
+caseflow-mobile/plugins/
+caseflow-mobile/www/
+caseflow-mobile/resources/
+caseflow-mobile/hooks/
+caseflow-mobile/dist/
+caseflow-mobile/derived/
+caseflow-mobile/.capacitor/
+caseflow-mobile/android/app/build/
+caseflow-mobile/ios/DerivedData/
+caseflow-mobile/ios/build/
+caseflow-mobile/ios/App/Pods/
 
-# Security files
-google-services.json
-GoogleService-Info.plist
-config.json
-secrets.json
-api-keys.json
+# Backend specific
+acs-backend/dist/
+acs-backend/logs/
+acs-backend/*.log
+acs-backend/*.txt
+acs-backend/coverage/
+acs-backend/.nyc_output/
 
-# Local development
-.local/
-.vscode-test/
-.eslintcache
-.stylelintcache
+# Web frontend specific
+acs-web/dist/
+acs-web/build/
+acs-web/coverage/
+acs-web/.nyc_output/
 
-# Package manager lock files (uncomment if you want to exclude them)
-# package-lock.json
-# yarn.lock
-# pnpm-lock.yaml
+# Configuration files that shouldn't be tracked
+*.local
+*.development
+*.production
+*.render
+render.yaml
+netlify.toml
+nginx.conf
+*.conf
+
+# GitHub
+/.github/
+
+# Test files
+*.test.*
+*.spec.*
+/__tests__/
+/test/
+/tests/
+
+# Bundles and packages
+*.bundle
+*.tar.gz
+*.zip
+
+# Security
+*.pem
+*.key
+*.csr
+*.crt
+
+# Miscellaneous
+*.mdc
+*.md~*
+cookies.txt
+*.pdf
+download.pdf
+
+# Log files
+*.log
+backend_logs.txt
+
+# Scripts that generate output
+*.sh
+*.js (except those in src directories)
+
+# Test scripts
+test_*.sh
+test_*.js
+debug_*.sh
+debug_*.js
+*_test.js
+*.test.ts
+*.test.tsx
+
+# Playwright
+playwright-report/
+test-results/
+
+# Project cleanup files
+CRM_APP_DIRECTORY_CLEANUP_COMPLETE.md
+project-documentation/
+
+# Audit and report files that are generated
+audit-reports/
+database-reports/
+migration-reports/
+system-reports/
+
+# Temporary and cache files
+.cache/
+.tmp/
+.temp/
+
+# IDE specific files
+*.code-workspace
