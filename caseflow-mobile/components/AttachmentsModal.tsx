@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { Attachment } from '../types';
 import { attachmentService } from '../services/attachmentService';
 import Modal from './Modal';
 import AttachmentViewer from './AttachmentViewer';
 import Spinner from './Spinner';
+import { useSafeArea } from './SafeAreaProvider';
 
 interface AttachmentsModalProps {
   caseId: string;
@@ -12,6 +14,7 @@ interface AttachmentsModalProps {
 }
 
 const AttachmentsModal: React.FC<AttachmentsModalProps> = ({ caseId, isVisible, onClose }) => {
+  const { deviceInfo } = useSafeArea();
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,51 +59,58 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({ caseId, isVisible, 
   };
 
   const renderAttachmentItem = (attachment: Attachment) => (
-    <div
+    <TouchableOpacity
       key={attachment.id}
-      onClick={() => handleAttachmentClick(attachment)}
-      className="flex items-center gap-4 p-4 bg-gray-800 rounded-lg hover:bg-gray-700 cursor-pointer transition-colors group"
+      onPress={() => handleAttachmentClick(attachment)}
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+        backgroundColor: '#1f2937',
+        borderRadius: 8,
+        marginBottom: 12
+      }}
     >
       {/* File Icon */}
-      <div className="flex-shrink-0">
-        <div className="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center text-2xl group-hover:bg-gray-600 transition-colors">
-          {attachmentService.getFileTypeIcon(attachment)}
-        </div>
-      </div>
+      <View style={{ width: 48, height: 48, backgroundColor: '#374151', borderRadius: 8, alignItems: 'center', justifyContent: 'center', marginRight: 16 }}>
+        <Text style={{ fontSize: 24 }}>{attachmentService.getFileTypeIcon(attachment)}</Text>
+      </View>
 
       {/* File Info */}
-      <div className="flex-1 min-w-0">
-        <h4 className="text-white font-medium truncate group-hover:text-blue-300 transition-colors">
+      <View style={{ flex: 1 }}>
+        <Text style={{ color: '#ffffff', fontWeight: '500', fontSize: 16 }} numberOfLines={1}>
           {attachment.name}
-        </h4>
-        <div className="flex items-center gap-4 mt-1 text-sm text-gray-400">
-          <span className="uppercase font-medium">{attachment.type}</span>
-          <span>{attachmentService.formatFileSize(attachment.size)}</span>
-          <span>
+        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
+          <Text style={{ color: '#9ca3af', fontSize: 12, textTransform: 'uppercase', fontWeight: '500', marginRight: 16 }}>
+            {attachment.type}
+          </Text>
+          <Text style={{ color: '#9ca3af', fontSize: 12, marginRight: 16 }}>
+            {attachmentService.formatFileSize(attachment.size)}
+          </Text>
+          <Text style={{ color: '#9ca3af', fontSize: 12 }}>
             {new Date(attachment.uploadedAt).toLocaleDateString('en-US', {
               month: 'short',
               day: 'numeric',
               year: 'numeric'
             })}
-          </span>
-        </div>
-        <p className="text-xs text-gray-500 mt-1">
+          </Text>
+        </View>
+        <Text style={{ color: '#6b7280', fontSize: 11, marginTop: 2 }}>
           Uploaded by {attachment.uploadedBy}
-        </p>
+        </Text>
         {attachment.description && (
-          <p className="text-xs text-gray-400 mt-1 truncate">
+          <Text style={{ color: '#9ca3af', fontSize: 11, marginTop: 2 }} numberOfLines={1}>
             {attachment.description}
-          </p>
+          </Text>
         )}
-      </div>
+      </View>
 
       {/* View Indicator */}
-      <div className="flex-shrink-0">
-        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center group-hover:bg-blue-500 transition-colors">
-          <span className="text-white text-xs">👁️</span>
-        </div>
-      </div>
-    </div>
+      <View style={{ width: 32, height: 32, backgroundColor: '#2563eb', borderRadius: 16, alignItems: 'center', justifyContent: 'center' }}>
+        <Text style={{ color: '#ffffff', fontSize: 12 }}>👁️</Text>
+      </View>
+    </TouchableOpacity>
   );
 
 
@@ -108,46 +118,46 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({ caseId, isVisible, 
   const renderContent = () => {
     if (loading) {
       return (
-        <div className="flex flex-col items-center justify-center py-12">
+        <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 48 }}>
           <Spinner size="large" />
-          <p className="text-gray-400 mt-4">Loading attachments...</p>
-        </div>
+          <Text style={{ color: '#9ca3af', marginTop: 16 }}>Loading attachments...</Text>
+        </View>
       );
     }
 
     if (error) {
       return (
-        <div className="flex flex-col items-center justify-center py-12">
-          <div className="text-red-400 text-6xl mb-4">❌</div>
-          <p className="text-red-400 text-center mb-4">{error}</p>
-          <button
-            onClick={fetchAttachments}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-md transition-colors"
+        <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 48 }}>
+          <Text style={{ color: '#ef4444', fontSize: 48, marginBottom: 16 }}>❌</Text>
+          <Text style={{ color: '#ef4444', textAlign: 'center', marginBottom: 16 }}>{error}</Text>
+          <TouchableOpacity
+            onPress={fetchAttachments}
+            style={{ paddingHorizontal: 16, paddingVertical: 8, backgroundColor: '#2563eb', borderRadius: 6 }}
           >
-            Try Again
-          </button>
-        </div>
+            <Text style={{ color: '#ffffff' }}>Try Again</Text>
+          </TouchableOpacity>
+        </View>
       );
     }
 
     if (attachments.length === 0) {
       return (
-        <div className="flex flex-col items-center justify-center py-12">
-          <div className="text-gray-400 text-6xl mb-4">📎</div>
-          <h3 className="text-white text-lg font-medium mb-2">No Attachments</h3>
-          <p className="text-gray-400 text-center">
+        <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 48 }}>
+          <Text style={{ color: '#9ca3af', fontSize: 48, marginBottom: 16 }}>📎</Text>
+          <Text style={{ color: '#ffffff', fontSize: 18, fontWeight: '500', marginBottom: 8 }}>No Attachments</Text>
+          <Text style={{ color: '#9ca3af', textAlign: 'center' }}>
             This case doesn't have any attachments yet.
-          </p>
-        </div>
+          </Text>
+        </View>
       );
     }
 
     return (
-      <div>
-        <div className="space-y-3 max-h-96 overflow-y-auto">
+      <View>
+        <View style={{ maxHeight: 384 }}>
           {attachments.map(renderAttachmentItem)}
-        </div>
-      </div>
+        </View>
+      </View>
     );
   };
 
@@ -159,23 +169,23 @@ const AttachmentsModal: React.FC<AttachmentsModalProps> = ({ caseId, isVisible, 
         isVisible={isVisible}
         onClose={onClose}
         title={
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">📎</span>
-            <div>
-              <h3 className="text-lg font-semibold text-white">Case Attachments</h3>
-              <p className="text-sm text-gray-400">
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={{ fontSize: 24, marginRight: 8 }}>📎</Text>
+            <View>
+              <Text style={{ fontSize: 18, fontWeight: '600', color: '#ffffff' }}>Case Attachments</Text>
+              <Text style={{ fontSize: 14, color: '#9ca3af' }}>
                 {loading ? 'Loading...' : `${attachments.length} attachment${attachments.length !== 1 ? 's' : ''}`}
-              </p>
-            </div>
-          </div>
+              </Text>
+            </View>
+          </View>
         }
         size="large"
       >
         {renderContent()}
       </Modal>
 
-      {/* Attachment Viewer */}
-      {selectedAttachment && (
+      {/* Attachment Viewer - Only render on web platform to avoid React Native errors */}
+      {selectedAttachment && deviceInfo.platform === 'web' && (
         <AttachmentViewer
           attachment={selectedAttachment}
           isVisible={viewerVisible}

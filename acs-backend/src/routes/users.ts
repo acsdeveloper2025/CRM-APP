@@ -1,6 +1,6 @@
 import express from 'express';
 import { body, query, param } from 'express-validator';
-import { authenticateToken } from '@/middleware/auth';
+import { authenticateToken, requireAdmin } from '@/middleware/auth';
 import { validate } from '@/middleware/validation';
 import { logger } from '@/config/logger';
 import {
@@ -24,7 +24,10 @@ import {
   getUserProductAssignments,
   assignProductsToUser,
   removeProductAssignment,
-  bulkUserOperation
+  bulkUserOperation,
+  adminResetPasswordAndDisplay,
+  adminResetPasswordAndEmail,
+  generateTemporaryPassword
 } from '@/controllers/usersController';
 
 const router = express.Router();
@@ -411,6 +414,37 @@ router.post('/:id/deactivate',
   ], 
   validate, 
   deactivateUser
+);
+
+// Admin-only password reset routes
+router.post('/:id/admin-reset-display',
+  authenticateToken,
+  requireAdmin,
+  [
+    param('id').trim().notEmpty().withMessage('User ID is required')
+  ],
+  validate,
+  adminResetPasswordAndDisplay
+);
+
+router.post('/:id/admin-reset-email',
+  authenticateToken,
+  requireAdmin,
+  [
+    param('id').trim().notEmpty().withMessage('User ID is required')
+  ],
+  validate,
+  adminResetPasswordAndEmail
+);
+
+router.post('/:id/generate-temp-password',
+  authenticateToken,
+  requireAdmin,
+  [
+    param('id').trim().notEmpty().withMessage('User ID is required')
+  ],
+  validate,
+  generateTemporaryPassword
 );
 
 export default router;

@@ -26,9 +26,11 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 }) => {
   return (
     <Modal isVisible={isOpen} onClose={onClose} title={title}>
-      <View style={{ gap: 16 }}>
-        {children}
-        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 16, marginTop: 24 }}>
+      <View>
+        <View style={{ marginBottom: 16 }}>
+          {children}
+        </View>
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 24 }}>
           <TouchableOpacity
             onPress={onSave}
             style={{ paddingHorizontal: 16, paddingVertical: 8, borderRadius: 6, backgroundColor: '#7C3AED' }}
@@ -37,7 +39,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           </TouchableOpacity>
           <TouchableOpacity
             onPress={onConfirm}
-            style={{ paddingHorizontal: 16, paddingVertical: 8, borderRadius: 6, backgroundColor: '#00a950' }}
+            style={{ paddingHorizontal: 16, paddingVertical: 8, borderRadius: 6, backgroundColor: '#00a950', marginLeft: 16 }}
           >
             <Text style={{ color: 'white', fontWeight: '600' }}>{confirmText}</Text>
           </TouchableOpacity>

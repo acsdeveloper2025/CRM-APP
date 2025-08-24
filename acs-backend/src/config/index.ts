@@ -36,10 +36,10 @@ export const config = {
   redisUrl: process.env.REDIS_URL || 'redis://localhost:6379',
   redisPassword: process.env.REDIS_PASSWORD || '',
   
-  // CORS - Support both web app (5173) and mobile app (5174)
+  // CORS - Support both web app (5173) and mobile app (5174/5175)
   corsOrigin: process.env.CORS_ORIGIN
     ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
-    : ['http://localhost:5173', 'http://localhost:5174'],
+    : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'],
   
   // Rate Limiting - More generous limits
   rateLimitWindowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000', 10), // 15 minutes

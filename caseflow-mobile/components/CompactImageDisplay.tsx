@@ -219,8 +219,7 @@ const CompactImageDisplay: React.FC<CompactImageDisplayProps> = ({
                       border: 'none',
                       cursor: 'pointer',
                       zIndex: 10,
-                      opacity: isMobile ? 1 : 0,
-                      transition: 'opacity 0.2s'
+                      opacity: isMobile ? 1 : 0
                     }}
                     className={isMobile ? '' : 'group-hover:opacity-100'}
                   >

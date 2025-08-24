@@ -37,6 +37,7 @@ export interface Case {
   productId?: string | number;
   verificationTypeId?: string | number;
   createdBy?: string;
+  createdByName?: string; // Name of the user who created the case
   updatedBy?: string;
   // Applicant information
   applicantName?: string;

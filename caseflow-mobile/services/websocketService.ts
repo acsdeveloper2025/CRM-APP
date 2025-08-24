@@ -71,16 +71,22 @@ class WebSocketService {
   private eventHandlers: WebSocketEventHandlers = {};
   private reconnectTimer: NodeJS.Timeout | null = null;
   private deviceInfo: any = null;
+  private isConnecting: boolean = false;
+  private lastConnectionAttempt: number = 0;
+  private CONNECTION_THROTTLE_MS = 10000; // 10 seconds between attempts for offline-first
+  private offlineMode: boolean = false;
+  private connectionRetryCount: number = 0;
+  private MAX_RETRY_ATTEMPTS = 3; // Reduced for offline-first approach
 
   constructor() {
     const envConfig = getEnvironmentConfig();
     
     this.config = {
-      url: envConfig.api.baseUrl.replace(/^http/, 'ws'),
-      autoConnect: true,
-      reconnectAttempts: 5,
-      reconnectDelay: 3000,
-      timeout: 10000,
+      url: envConfig.api.wsUrl,
+      autoConnect: false, // Disabled for offline-first approach
+      reconnectAttempts: 3, // Reduced for offline-first
+      reconnectDelay: 10000, // Longer delay for offline-first
+      timeout: 15000, // Longer timeout
     };
 
     this.state = {
@@ -91,8 +97,11 @@ class WebSocketService {
       reconnectAttempts: 0,
     };
 
+    // Check if offline mode should be enabled
+    this.offlineMode = !navigator.onLine || !envConfig.features.enableRealTimeUpdates;
+
     this.initializeDeviceInfo();
-    this.setupAppStateListeners();
+    this.setupConnectivityListeners();
   }
 
   /**
@@ -108,17 +117,42 @@ class WebSocketService {
   }
 
   /**
-   * Set up app state listeners for connection management
+   * Set up connectivity listeners for offline-first operation
    */
-  private setupAppStateListeners(): void {
+  private setupConnectivityListeners(): void {
+    // Listen for online/offline events
+    window.addEventListener('online', () => {
+      this.offlineMode = false;
+      this.connectionRetryCount = 0;
+      // Only attempt connection for critical operations
+      setTimeout(() => this.attemptCriticalConnection(), 2000);
+    });
+
+    window.addEventListener('offline', () => {
+      this.offlineMode = true;
+      this.disconnect();
+    });
+
+    // App state listener with reduced reconnection
     App.addListener('appStateChange', ({ isActive }) => {
-      if (isActive) {
-        console.log('📱 App became active - reconnecting WebSocket');
-        this.connect();
-      } else {
-        console.log('📱 App became inactive - maintaining WebSocket connection');
-        // Keep connection alive in background for notifications
+      if (isActive && !this.offlineMode && !this.isConnected() && this.connectionRetryCount < this.MAX_RETRY_ATTEMPTS) {
+        // Only reconnect if we haven't exceeded retry attempts
+        setTimeout(() => this.attemptCriticalConnection(), 5000);
       }
+    });
+  }
+
+  /**
+   * Attempt connection only for critical operations (case assignment, submit, sync)
+   */
+  private attemptCriticalConnection(): void {
+    if (this.offlineMode || this.isConnecting || this.connectionRetryCount >= this.MAX_RETRY_ATTEMPTS) {
+      return;
+    }
+    
+    this.connectionRetryCount++;
+    this.connect().catch(() => {
+      // Silently fail and rely on offline capabilities
     });
   }
 
@@ -127,13 +161,30 @@ class WebSocketService {
    */
   async connect(): Promise<void> {
     return new Promise(async (resolve, reject) => {
+      // Prevent multiple simultaneous connection attempts
+      if (this.isConnecting) {
+        resolve();
+        return;
+      }
+
       if (this.socket?.connected) {
         resolve();
         return;
       }
 
+      // Throttle connection attempts
+      const now = Date.now();
+      if (now - this.lastConnectionAttempt < this.CONNECTION_THROTTLE_MS) {
+        reject(new Error('Connection attempts throttled'));
+        return;
+      }
+
+      this.lastConnectionAttempt = now;
+      this.isConnecting = true;
+
       const token = await authService.getAccessToken();
       if (!token) {
+        this.isConnecting = false;
         reject(new Error('No authentication token available'));
         return;
       }
@@ -144,6 +195,12 @@ class WebSocketService {
       // Ensure device info is available
       if (!this.deviceInfo) {
         await this.initializeDeviceInfo();
+      }
+
+      // Disconnect existing socket if any
+      if (this.socket) {
+        this.socket.disconnect();
+        this.socket = null;
       }
 
       this.socket = io(this.config.url, {
@@ -160,12 +217,13 @@ class WebSocketService {
       this.setupEventListeners();
 
       this.socket.on('connect', () => {
+        this.isConnecting = false;
         this.state.isConnected = true;
         this.state.isConnecting = false;
         this.state.lastConnected = new Date();
         this.state.reconnectAttempts = 0;
         
-        console.log('✅ WebSocket connected successfully');
+
         this.eventHandlers.onConnected?.({
           message: 'Connected to CaseFlow WebSocket server',
           timestamp: new Date().toISOString(),
@@ -175,10 +233,11 @@ class WebSocketService {
       });
 
       this.socket.on('connect_error', (error: any) => {
+        this.isConnecting = false;
         this.state.isConnecting = false;
         this.state.error = error.message;
         
-        console.error('❌ WebSocket connection error:', error.message);
+
         this.eventHandlers.onError?.(error.message);
         
         if (this.state.reconnectAttempts < this.config.reconnectAttempts) {
@@ -191,7 +250,8 @@ class WebSocketService {
   }
 
   /**
-   * Set up event listeners for WebSocket events
+   * Set up event listeners for critical WebSocket events only
+   * Focus on: case assignment, submission confirmations, and sync triggers
    */
   private setupEventListeners(): void {
     if (!this.socket) return;
@@ -199,84 +259,75 @@ class WebSocketService {
     // Connection events
     this.socket.on('disconnect', (reason) => {
       this.state.isConnected = false;
-      console.log('🔌 WebSocket disconnected:', reason);
       this.eventHandlers.onDisconnected?.(reason);
       
-      // Auto-reconnect unless manually disconnected
-      if (reason !== 'io client disconnect') {
+      // Only auto-reconnect for critical disconnections, not manual ones
+      if (reason !== 'io client disconnect' && !this.offlineMode && this.connectionRetryCount < this.MAX_RETRY_ATTEMPTS) {
         this.scheduleReconnect();
       }
     });
 
-    // Case assignment notifications
+    // CRITICAL: Case assignment notifications (offline-first)
     this.socket.on('mobile:case:assigned', (data: CaseAssignmentNotification & { notificationId?: string }) => {
-      console.log('📋 New case assigned:', data.case.caseId);
-
-      // Send acknowledgment
+      // Acknowledge notification
       if (data.notificationId) {
         this.acknowledgeNotification(data.notificationId);
       }
 
       this.eventHandlers.onCaseAssigned?.(data);
 
-      // Trigger case list refresh
-      caseService.syncCases().catch(console.error);
+      // Trigger case sync for new assignment
+      caseService.syncCases().catch(() => {
+        // Silently fail - offline mode will handle this
+      });
     });
 
-    // Case status change notifications
-    this.socket.on('mobile:case:status:changed', (data: CaseStatusChangeNotification & { notificationId?: string }) => {
-      console.log('📊 Case status changed:', data.caseId, data.oldStatus, '->', data.newStatus);
-
-      // Send acknowledgment
-      if (data.notificationId) {
-        this.acknowledgeNotification(data.notificationId);
-      }
-
-      this.eventHandlers.onCaseStatusChanged?.(data);
-
-      // Update local case data
-      caseService.syncCases().catch(console.error);
-    });
-
-    // Case priority change notifications
-    this.socket.on('mobile:case:priority:changed', (data: CasePriorityChangeNotification) => {
-      console.log('⚡ Case priority changed:', data.caseId, data.oldPriority, '->', data.newPriority);
-      this.eventHandlers.onCasePriorityChanged?.(data);
+    // CRITICAL: Sync triggers (for offline-first operation)
+    this.socket.on('mobile:sync:trigger', (data: any) => {
+      this.eventHandlers.onSyncTrigger?.(data);
       
-      // Update local case data
-      caseService.syncCases().catch(console.error);
+      // Trigger intelligent sync
+      caseService.syncCases().catch(() => {
+        // Silently fail - will be handled by periodic sync
+      });
     });
 
-    // Sync events
+    // CRITICAL: Sync completion notifications
     this.socket.on('mobile:sync:completed', (data: any) => {
-      console.log('🔄 Sync completed:', data);
       this.eventHandlers.onSyncCompleted?.(data);
     });
 
-    this.socket.on('mobile:sync:trigger', (data: any) => {
-      console.log('🔄 Sync trigger received:', data);
-      this.eventHandlers.onSyncTrigger?.(data);
-      
-      // Trigger automatic sync
-      caseService.syncCases().catch(console.error);
+    // Optional: Case status changes (less critical for offline-first)
+    this.socket.on('mobile:case:status:changed', (data: CaseStatusChangeNotification & { notificationId?: string }) => {
+      if (data.notificationId) {
+        this.acknowledgeNotification(data.notificationId);
+      }
+      this.eventHandlers.onCaseStatusChanged?.(data);
     });
   }
 
   /**
-   * Schedule reconnection attempt
+   * Schedule reconnection with offline-first approach
    */
   private scheduleReconnect(): void {
+    if (this.reconnectTimer || this.offlineMode || this.connectionRetryCount >= this.MAX_RETRY_ATTEMPTS) {
+      return;
+    }
+
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer);
     }
 
     this.state.reconnectAttempts++;
-    const delay = this.config.reconnectDelay * Math.pow(2, this.state.reconnectAttempts - 1);
+    this.connectionRetryCount++;
     
-    console.log(`🔄 Scheduling reconnect attempt ${this.state.reconnectAttempts} in ${delay}ms`);
+    // Exponential backoff with maximum delay for offline-first
+    const delay = Math.min(this.config.reconnectDelay * Math.pow(2, this.state.reconnectAttempts - 1), 60000);
     
     this.reconnectTimer = setTimeout(() => {
-      this.connect().catch(console.error);
+      this.connect().catch(() => {
+        // Silently fail - offline mode will handle operations
+      });
     }, delay);
   }
 
@@ -294,6 +345,7 @@ class WebSocketService {
       this.socket = null;
     }
 
+    this.isConnecting = false;
     this.state.isConnected = false;
     this.state.isConnecting = false;
   }
@@ -324,7 +376,6 @@ class WebSocketService {
    */
   emit(event: string, data?: any): void {
     if (!this.socket?.connected) {
-      console.warn('WebSocket not connected, cannot emit event:', event);
       return;
     }
     this.socket.emit(event, data);
@@ -363,7 +414,74 @@ class WebSocketService {
    */
   acknowledgeNotification(notificationId: string): void {
     this.emit('mobile:notification:ack', { notificationId });
-    console.log('✅ Notification acknowledged:', notificationId);
+  }
+
+  /**
+   * Trigger sync operation (offline-first)
+   */
+  triggerSync(): void {
+    if (this.isConnected()) {
+      this.emit('mobile:sync:request', {
+        timestamp: new Date().toISOString(),
+        offline: false
+      });
+    } else {
+      // Trigger local sync when offline
+      caseService.syncCases().catch(() => {
+        // Local sync failed - will be retried later
+      });
+    }
+  }
+
+  /**
+   * Notify case submission (for real-time confirmation)
+   */
+  notifyCaseSubmission(caseId: string, offline: boolean = false): void {
+    if (this.isConnected()) {
+      this.emit('mobile:case:submit', {
+        caseId,
+        timestamp: new Date().toISOString(),
+        offline
+      });
+    }
+    // If offline, submission will be handled by case service queue
+  }
+
+  /**
+   * Request case assignment updates (when coming online)
+   */
+  requestCaseUpdates(): void {
+    if (this.isConnected()) {
+      this.emit('mobile:cases:refresh', {
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+
+  /**
+   * Check if offline mode is enabled
+   */
+  isOffline(): boolean {
+    return this.offlineMode || !navigator.onLine;
+  }
+
+  /**
+   * Enable offline-first mode
+   */
+  enableOfflineMode(): void {
+    this.offlineMode = true;
+    this.disconnect();
+  }
+
+  /**
+   * Disable offline mode and attempt connection
+   */
+  disableOfflineMode(): void {
+    this.offlineMode = false;
+    this.connectionRetryCount = 0;
+    if (navigator.onLine) {
+      this.attemptCriticalConnection();
+    }
   }
 }
 

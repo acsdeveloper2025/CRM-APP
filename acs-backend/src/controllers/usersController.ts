@@ -4,6 +4,8 @@ import { query } from '@/config/database';
 import { logger } from '@/config/logger';
 import { AuthenticatedRequest } from '@/middleware/auth';
 import type { Role } from '@/types/auth';
+import { createAuditLog } from '@/utils/auditLogger';
+import { emailService } from '@/services/emailService';
 
 
 // GET /api/users - List users with pagination and filters
@@ -1181,3 +1183,367 @@ export const removeProductAssignment = async (req: AuthenticatedRequest, res: Re
     });
   }
 };
+
+// Admin-Only Password Reset Functions
+
+// POST /api/users/:id/admin-reset-display - Admin resets password and displays it
+export const adminResetPasswordAndDisplay = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const adminUserId = req.user?.id;
+    const adminRole = req.user?.role;
+
+    // Only ADMIN and SUPER_ADMIN can reset passwords
+    if (adminRole !== 'ADMIN' && adminRole !== 'SUPER_ADMIN') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Only administrators can reset passwords.',
+        error: { code: 'INSUFFICIENT_PERMISSIONS' },
+      });
+    }
+
+    // Check if target user exists
+    const userExistsQuery = `SELECT id, name, username, email FROM users WHERE id = $1`;
+    const userExists = await query(userExistsQuery, [id]);
+
+    if (userExists.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+        error: { code: 'NOT_FOUND' },
+      });
+    }
+
+    const targetUser = userExists.rows[0];
+
+    // Prevent admin from resetting super admin password (unless they are super admin)
+    if (adminRole === 'ADMIN') {
+      const targetUserRoleQuery = `SELECT role FROM users WHERE id = $1`;
+      const targetUserRole = await query(targetUserRoleQuery, [id]);
+      
+      if (targetUserRole.rows[0]?.role === 'SUPER_ADMIN') {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. Admin users cannot reset Super Admin passwords.',
+          error: { code: 'INSUFFICIENT_PERMISSIONS' },
+        });
+      }
+    }
+
+    // Generate secure random password
+    const newPassword = generateSecurePassword();
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update user password in database
+    const updateQuery = `
+      UPDATE users 
+      SET "passwordHash" = $1, "updatedAt" = CURRENT_TIMESTAMP
+      WHERE id = $2
+      RETURNING id, name, username, email
+    `;
+    
+    const result = await query(updateQuery, [hashedPassword, id]);
+
+    // Create audit log
+    await createAuditLog({
+      action: 'ADMIN_PASSWORD_RESET_DISPLAY',
+      entityType: 'USER',
+      entityId: id,
+      userId: adminUserId,
+      details: {
+        targetUserId: id,
+        targetUsername: targetUser.username,
+        targetUserName: targetUser.name,
+        resetMethod: 'DISPLAY_TO_ADMIN',
+        adminUserId,
+      },
+      ipAddress: req.ip,
+      userAgent: req.get('User-Agent') || undefined,
+    });
+
+    logger.info(`Admin password reset (display) completed`, {
+      adminUserId,
+      targetUserId: id,
+      targetUsername: targetUser.username,
+      resetMethod: 'DISPLAY_TO_ADMIN'
+    });
+
+    res.json({
+      success: true,
+      data: {
+        userId: id,
+        username: targetUser.username,
+        name: targetUser.name,
+        email: targetUser.email,
+        newPassword: newPassword, // Password displayed to admin
+        resetMethod: 'DISPLAY_TO_ADMIN',
+        resetAt: new Date().toISOString(),
+        resetBy: adminUserId
+      },
+      message: 'Password reset successfully. Please provide the new password to the user.',
+    });
+  } catch (error) {
+    logger.error('Error in admin password reset (display):', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to reset password',
+      error: { code: 'INTERNAL_ERROR' },
+    });
+  }
+};
+
+// POST /api/users/:id/admin-reset-email - Admin resets password and emails it
+export const adminResetPasswordAndEmail = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const adminUserId = req.user?.id;
+    const adminRole = req.user?.role;
+
+    // Only ADMIN and SUPER_ADMIN can reset passwords
+    if (adminRole !== 'ADMIN' && adminRole !== 'SUPER_ADMIN') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Only administrators can reset passwords.',
+        error: { code: 'INSUFFICIENT_PERMISSIONS' },
+      });
+    }
+
+    // Check if target user exists and has email
+    const userExistsQuery = `SELECT id, name, username, email FROM users WHERE id = $1`;
+    const userExists = await query(userExistsQuery, [id]);
+
+    if (userExists.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+        error: { code: 'NOT_FOUND' },
+      });
+    }
+
+    const targetUser = userExists.rows[0];
+
+    if (!targetUser.email) {
+      return res.status(400).json({
+        success: false,
+        message: 'User does not have an email address configured',
+        error: { code: 'NO_EMAIL_ADDRESS' },
+      });
+    }
+
+    // Prevent admin from resetting super admin password (unless they are super admin)
+    if (adminRole === 'ADMIN') {
+      const targetUserRoleQuery = `SELECT role FROM users WHERE id = $1`;
+      const targetUserRole = await query(targetUserRoleQuery, [id]);
+      
+      if (targetUserRole.rows[0]?.role === 'SUPER_ADMIN') {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. Admin users cannot reset Super Admin passwords.',
+          error: { code: 'INSUFFICIENT_PERMISSIONS' },
+        });
+      }
+    }
+
+    // Generate secure random password
+    const newPassword = generateSecurePassword();
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update user password in database
+    const updateQuery = `
+      UPDATE users 
+      SET "passwordHash" = $1, "updatedAt" = CURRENT_TIMESTAMP
+      WHERE id = $2
+      RETURNING id, name, username, email
+    `;
+    
+    const result = await query(updateQuery, [hashedPassword, id]);
+
+    // Send email with new password
+    try {
+      await emailService.sendPasswordResetEmail({
+        to: targetUser.email,
+        userName: targetUser.name,
+        username: targetUser.username,
+        newPassword: newPassword,
+        resetByAdmin: true
+      });
+      
+      logger.info(`Password reset email sent successfully`, {
+        adminUserId,
+        targetUserId: id,
+        targetEmail: targetUser.email
+      });
+    } catch (emailError) {
+      logger.error('Failed to send password reset email:', emailError);
+      
+      // Revert password change if email fails
+      await query(
+        `UPDATE users SET "passwordHash" = (SELECT "passwordHash" FROM users WHERE id = $1), "updatedAt" = CURRENT_TIMESTAMP WHERE id = $1`,
+        [id]
+      );
+      
+      return res.status(500).json({
+        success: false,
+        message: 'Password reset failed. Email could not be sent.',
+        error: { code: 'EMAIL_DELIVERY_FAILED' },
+      });
+    }
+
+    // Create audit log
+    await createAuditLog({
+      action: 'ADMIN_PASSWORD_RESET_EMAIL',
+      entityType: 'USER',
+      entityId: id,
+      userId: adminUserId,
+      details: {
+        targetUserId: id,
+        targetUsername: targetUser.username,
+        targetUserName: targetUser.name,
+        targetEmail: targetUser.email,
+        resetMethod: 'EMAIL_TO_USER',
+        adminUserId,
+      },
+      ipAddress: req.ip,
+      userAgent: req.get('User-Agent') || undefined,
+    });
+
+    logger.info(`Admin password reset (email) completed`, {
+      adminUserId,
+      targetUserId: id,
+      targetUsername: targetUser.username,
+      resetMethod: 'EMAIL_TO_USER'
+    });
+
+    res.json({
+      success: true,
+      data: {
+        userId: id,
+        username: targetUser.username,
+        name: targetUser.name,
+        email: targetUser.email,
+        resetMethod: 'EMAIL_TO_USER',
+        emailSent: true,
+        resetAt: new Date().toISOString(),
+        resetBy: adminUserId
+      },
+      message: `Password reset successfully. New password has been sent to ${targetUser.email}`,
+    });
+  } catch (error) {
+    logger.error('Error in admin password reset (email):', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to reset password',
+      error: { code: 'INTERNAL_ERROR' },
+    });
+  }
+};
+
+// POST /api/users/:id/generate-temp-password - Generate temporary password (legacy support)
+export const generateTemporaryPassword = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const adminUserId = req.user?.id;
+    const adminRole = req.user?.role;
+
+    // Only ADMIN and SUPER_ADMIN can generate temporary passwords
+    if (adminRole !== 'ADMIN' && adminRole !== 'SUPER_ADMIN') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Only administrators can generate temporary passwords.',
+        error: { code: 'INSUFFICIENT_PERMISSIONS' },
+      });
+    }
+
+    // Check if target user exists
+    const userExistsQuery = `SELECT id, name, username, email FROM users WHERE id = $1`;
+    const userExists = await query(userExistsQuery, [id]);
+
+    if (userExists.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+        error: { code: 'NOT_FOUND' },
+      });
+    }
+
+    const targetUser = userExists.rows[0];
+
+    // Generate secure random password
+    const temporaryPassword = generateSecurePassword();
+    const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
+
+    // Update user password in database
+    const updateQuery = `
+      UPDATE users 
+      SET "passwordHash" = $1, "updatedAt" = CURRENT_TIMESTAMP
+      WHERE id = $2
+      RETURNING id, name, username, email
+    `;
+    
+    const result = await query(updateQuery, [hashedPassword, id]);
+
+    // Create audit log
+    await createAuditLog({
+      action: 'TEMP_PASSWORD_GENERATED',
+      entityType: 'USER',
+      entityId: id,
+      userId: adminUserId,
+      details: {
+        targetUserId: id,
+        targetUsername: targetUser.username,
+        targetUserName: targetUser.name,
+        adminUserId,
+      },
+      ipAddress: req.ip,
+      userAgent: req.get('User-Agent') || undefined,
+    });
+
+    logger.info(`Temporary password generated`, {
+      adminUserId,
+      targetUserId: id,
+      targetUsername: targetUser.username
+    });
+
+    res.json({
+      success: true,
+      data: {
+        temporaryPassword: temporaryPassword
+      },
+      message: 'Temporary password generated successfully',
+    });
+  } catch (error) {
+    logger.error('Error generating temporary password:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to generate temporary password',
+      error: { code: 'INTERNAL_ERROR' },
+    });
+  }
+};
+
+// Utility function to generate secure random password
+function generateSecurePassword(): string {
+  const length = 12;
+  const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+  let password = '';
+  
+  // Ensure at least one character from each category
+  const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const numbers = '0123456789';
+  const symbols = '!@#$%^&*';
+  
+  // Add one character from each category
+  password += lowercase[Math.floor(Math.random() * lowercase.length)];
+  password += uppercase[Math.floor(Math.random() * uppercase.length)];
+  password += numbers[Math.floor(Math.random() * numbers.length)];
+  password += symbols[Math.floor(Math.random() * symbols.length)];
+  
+  // Fill the rest randomly
+  for (let i = 4; i < length; i++) {
+    password += charset[Math.floor(Math.random() * charset.length)];
+  }
+  
+  // Shuffle the password
+  return password.split('').sort(() => Math.random() - 0.5).join('');
+}

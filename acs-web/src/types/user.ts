@@ -70,6 +70,33 @@ export interface ResetPasswordData {
   confirmPassword: string;
 }
 
+// Admin password reset types
+export interface AdminPasswordResetDisplayResponse {
+  userId: string;
+  username: string;
+  name: string;
+  email: string;
+  newPassword: string;
+  resetMethod: 'DISPLAY_TO_ADMIN';
+  resetAt: string;
+  resetBy: string;
+}
+
+export interface AdminPasswordResetEmailResponse {
+  userId: string;
+  username: string;
+  name: string;
+  email: string;
+  resetMethod: 'EMAIL_TO_USER';
+  emailSent: boolean;
+  resetAt: string;
+  resetBy: string;
+}
+
+export interface GenerateTemporaryPasswordResponse {
+  temporaryPassword: string;
+}
+
 export interface UserActivity {
   id: string;
   userId: string;

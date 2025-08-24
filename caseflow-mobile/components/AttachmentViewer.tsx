@@ -221,7 +221,6 @@ const AttachmentViewer: React.FC<AttachmentViewerProps> = ({ attachment, isVisib
             className="max-w-full max-h-full object-contain mx-auto"
             style={{
               transform: `scale(${imageScale}) translate(${imagePosition.x}px, ${imagePosition.y}px)`,
-              transition: 'transform 0.2s ease',
               userSelect: 'none',
               pointerEvents: 'none' // Disable right-click and drag
             }}

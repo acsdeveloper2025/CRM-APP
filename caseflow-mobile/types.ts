@@ -16,6 +16,10 @@ export enum VerificationType {
   Connector = 'DSA/DST & Connector',
   PropertyAPF = 'Property (APF)',
   PropertyIndividual = 'Property (Individual)',
+  // Additional types found in API
+  OfficeVerification = 'Office Verification',
+  ReferenceCheck = 'Reference Check', 
+  EmploymentVerification = 'Employment Verification',
 }
 
 export enum VerificationOutcome {

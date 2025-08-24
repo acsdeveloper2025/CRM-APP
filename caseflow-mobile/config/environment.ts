@@ -121,7 +121,7 @@ const defaultConfig: EnvironmentConfig = {
   app: {
     name: 'CaseFlow Mobile',
     environment: 'development',
-    version: '2.1.0',
+    version: '4.0.0',
     debugMode: true,
     logLevel: 'debug',
     enableMockData: false,
@@ -317,7 +317,7 @@ export const getEnvironmentSpecificConfig = (environment: string) => {
           ...baseConfig.app,
           debugMode: true,
           logLevel: 'debug' as const,
-          enableMockData: true,
+          enableMockData: false,
         },
       };
   }
@@ -344,6 +344,8 @@ export const getApiConfig = () => {
       'Content-Type': 'application/json',
       'X-App-Version': config.app.version,
       'X-App-Environment': config.app.environment,
+      'X-Platform': 'WEB', // For web-based mobile app
+      'X-Device-ID': 'web-device-' + Date.now(), // Generate a device ID for web
     },
   };
 };

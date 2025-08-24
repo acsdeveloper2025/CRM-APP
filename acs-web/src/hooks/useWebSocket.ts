@@ -160,19 +160,23 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
   // Auto-connect on mount
   useEffect(() => {
     if (autoConnect && !isInitialized && authService.isAuthenticated()) {
-      connect();
-      setIsInitialized(true);
+      // Only initialize if not already connected or connecting
+      if (!webSocketService.isConnected && !webSocketService.isConnecting) {
+        connect();
+        setIsInitialized(true);
+      }
     }
   }, [autoConnect, connect, isInitialized]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (isInitialized) {
+      // Only disconnect if this hook initiated the connection and was set to auto-connect
+      if (isInitialized && autoConnect) {
         disconnect();
       }
     };
-  }, [disconnect, isInitialized]);
+  }, [disconnect, isInitialized, autoConnect]);
 
   // Listen for authentication changes
   useEffect(() => {

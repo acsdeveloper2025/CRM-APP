@@ -81,21 +81,41 @@ export const CaseProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setLoading(true);
     setError(null);
     try {
+      console.log('🔍 [CaseContext] Starting fetchCases...');
       const data = await caseService.getCases();
+      console.log('📊 [CaseContext] Raw data received:', data);
+      
       const casesArray = Array.isArray(data) ? data : (data?.cases || []);
+      console.log('📋 [CaseContext] Cases array length:', casesArray.length);
+      
+      if (casesArray.length > 0) {
+        console.log('📝 [CaseContext] Sample case:', casesArray[0]);
+      }
+      
       setCases(casesArray.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()));
+      console.log('✅ [CaseContext] Cases set successfully');
     } catch (err) {
       setError('Failed to fetch cases.');
-      console.error(err);
+      console.error('❌ [CaseContext] Error fetching cases:', err);
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
+    console.log('🔐 [CaseContext] Auth state changed:', { isAuthenticated });
     if (isAuthenticated) {
-      fetchCases();
+      console.log('🚀 [CaseContext] User authenticated, fetching cases...');
+      // Trigger immediate sync to ensure latest data
+      syncCases().then(() => {
+        console.log('🔄 [CaseContext] Initial sync completed, now fetching cases');
+        fetchCases();
+      }).catch((err) => {
+        console.warn('⚠️ [CaseContext] Initial sync failed, proceeding with regular fetch:', err);
+        fetchCases();
+      });
     } else {
+      console.log('🚫 [CaseContext] User not authenticated, clearing cases');
       setCases([]);
     }
   }, [isAuthenticated, fetchCases]);
@@ -990,11 +1010,19 @@ export const CaseProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setSyncing(true);
     setError(null);
     try {
-      const data = await caseService.syncWithServer();
-      setCases(data.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()));
+      const result = await caseService.syncCases();
+      
+      if (result.success) {
+        // Refresh cases from local storage after successful sync
+        await fetchCases();
+        console.log(`✅ Sync completed: ${result.newCases} new cases, ${result.updatedCases} updated cases`);
+      } else {
+        throw new Error(result.error || 'Sync failed');
+      }
     } catch (err) {
-      setError('Failed to sync cases.');
-      console.error(err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to sync cases';
+      setError(errorMessage);
+      console.error('Sync error:', err);
     } finally {
       setSyncing(false);
     }

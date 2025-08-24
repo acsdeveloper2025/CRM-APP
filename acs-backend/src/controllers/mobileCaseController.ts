@@ -102,7 +102,7 @@ export class MobileCaseController {
         LEFT JOIN clients cl ON cl.id = c."clientId"
         LEFT JOIN products p ON p.id = c."productId"
         LEFT JOIN "verificationTypes" vt ON vt.id = c."verificationTypeId"
-        LEFT JOIN users cu ON cu.id = c."createdBy"
+        LEFT JOIN users cu ON cu.id = c."createdByBackendUser"
         LEFT JOIN users au ON au.id = c."assignedTo"
         LEFT JOIN (
           SELECT "caseId", COUNT(*) as attachment_count
@@ -120,7 +120,7 @@ export class MobileCaseController {
 
       // Transform cases for mobile response with all required assignment fields
       const mobileCases: MobileCaseResponse[] = cases.map(caseItem => ({
-        id: caseItem.id,
+        id: caseItem.caseId.toString(), // Use caseId as the ID since there's no separate id column
         caseId: caseItem.caseId, // User-friendly auto-incrementing case ID
         title: caseItem.title,
         description: caseItem.description,
@@ -224,9 +224,9 @@ export class MobileCaseController {
         LEFT JOIN clients cl ON cl.id = c."clientId"
         LEFT JOIN products p ON p.id = c."productId"
         LEFT JOIN "verificationTypes" vt ON vt.id = c."verificationTypeId"
-        LEFT JOIN users cu ON cu.id = c."createdBy"
+        LEFT JOIN users cu ON cu.id = c."createdByBackendUser"
         LEFT JOIN users au ON au.id = c."assignedTo"
-        WHERE c.id = $1`;
+        WHERE c."caseId" = $1`;
       if (userRole === 'FIELD_AGENT') { caseSql += ` AND c."assignedTo" = $2`; vals2.push(userId); }
       const caseRes = await query(caseSql, vals2);
       const caseItem = caseRes.rows[0];
@@ -264,7 +264,7 @@ export class MobileCaseController {
       }
 
       const mobileCase: MobileCaseResponse = {
-        id: caseItem.id,
+        id: caseItem.caseId.toString(), // Use caseId as the ID since there's no separate id column
         caseId: caseItem.caseId, // User-friendly auto-incrementing case ID
         title: caseItem.title,
         description: caseItem.description,

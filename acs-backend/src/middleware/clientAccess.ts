@@ -163,7 +163,7 @@ export const validateCaseAccess = async (req: AuthenticatedRequest, res: Respons
 
     // Get the client ID for the case
     const caseResult = await query(
-      'SELECT "clientId" FROM cases WHERE id = $1',
+      'SELECT "clientId" FROM cases WHERE "caseId" = $1',
       [caseId]
     );
 

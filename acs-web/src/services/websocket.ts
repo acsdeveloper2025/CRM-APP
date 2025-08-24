@@ -20,8 +20,8 @@ class WebSocketService {
   private latency: number = 0;
 
   constructor() {
-    // Explicitly force the correct WebSocket URL to avoid any caching issues
-    const wsUrl = 'ws://localhost:3000';
+    // Use environment variable with fallback to localhost:3000
+    const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:3000';
 
     this.config = {
       url: wsUrl,
@@ -44,6 +44,11 @@ class WebSocketService {
     return new Promise((resolve, reject) => {
       if (this.socket?.connected) {
         resolve();
+        return;
+      }
+
+      if (this.state.isConnecting) {
+        reject(new Error('Connection already in progress'));
         return;
       }
 
@@ -84,11 +89,14 @@ class WebSocketService {
       this.socket.on('connect_error' as any, (error: any) => {
         this.state.isConnecting = false;
         this.state.error = error.message;
+        console.warn('WebSocket connection error:', error.message);
         this.eventHandlers.onError?.(error.message);
         
+        // Only attempt reconnection if we haven't exceeded the limit
         if (this.state.reconnectAttempts < this.config.reconnectAttempts) {
           this.scheduleReconnect();
         } else {
+          console.error('WebSocket reconnection attempts exhausted');
           reject(error);
         }
       });
@@ -211,10 +219,15 @@ class WebSocketService {
     this.socket.on('disconnect', (reason) => {
       this.state.isConnected = false;
       this.stopPingInterval();
+      console.log('WebSocket disconnected:', reason);
       this.eventHandlers.onDisconnected?.(reason);
       
-      if (reason === 'io server disconnect') {
-        // Server disconnected, try to reconnect
+      // Only auto-reconnect if server disconnected us, not if we disconnected intentionally
+      if (reason === 'io server disconnect' || reason === 'transport close') {
+        console.log('Server initiated disconnect, scheduling reconnection');
+        this.scheduleReconnect();
+      } else if (reason === 'transport error') {
+        console.log('Transport error, scheduling reconnection');
         this.scheduleReconnect();
       }
     });
@@ -267,13 +280,19 @@ class WebSocketService {
     if (this.reconnectTimer) return;
     
     this.state.reconnectAttempts++;
-    const delay = this.config.reconnectDelay * Math.pow(2, this.state.reconnectAttempts - 1);
+    // Exponential backoff with minimum 1 second delay
+    const delay = Math.max(1000, this.config.reconnectDelay * Math.pow(2, this.state.reconnectAttempts - 1));
+    
+    console.log(`Scheduling WebSocket reconnection attempt ${this.state.reconnectAttempts} in ${delay}ms`);
     
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = null;
-      this.connect().catch(() => {
-        // Reconnection failed, will try again if attempts remaining
-      });
+      if (this.state.reconnectAttempts <= this.config.reconnectAttempts) {
+        console.log(`Attempting WebSocket reconnection ${this.state.reconnectAttempts}/${this.config.reconnectAttempts}`);
+        this.connect().catch((error) => {
+          console.warn(`WebSocket reconnection attempt ${this.state.reconnectAttempts} failed:`, error.message);
+        });
+      }
     }, delay);
   }
 

@@ -1,4 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 
 interface Props {
   children: ReactNode;
@@ -32,45 +33,44 @@ class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{
-          padding: '20px',
+        <View style={{
+          padding: 20,
           backgroundColor: '#111827',
-          color: '#fff',
           minHeight: '100vh',
           fontFamily: 'monospace'
         }}>
-          <h1 style={{ color: '#ef4444' }}>Something went wrong!</h1>
-          <details style={{ whiteSpace: 'pre-wrap', marginTop: '20px' }}>
-            <summary style={{ cursor: 'pointer', marginBottom: '10px' }}>
-              Click to see error details
-            </summary>
-            <div style={{ backgroundColor: '#1f2937', padding: '10px', borderRadius: '4px' }}>
-              <h3>Error:</h3>
-              <p style={{ color: '#fbbf24' }}>{this.state.error && this.state.error.toString()}</p>
+          <Text style={{ color: '#ef4444', fontSize: 24, fontWeight: 'bold', marginBottom: 16 }}>Something went wrong!</Text>
+          <View style={{ marginTop: 20 }}>
+            <TouchableOpacity style={{ marginBottom: 10 }}>
+              <Text style={{ color: '#ffffff', fontSize: 16, fontWeight: '600' }}>Click to see error details</Text>
+            </TouchableOpacity>
+            <View style={{ backgroundColor: '#1f2937', padding: 10, borderRadius: 4 }}>
+              <Text style={{ color: '#ffffff', fontSize: 18, fontWeight: 'bold', marginBottom: 8 }}>Error:</Text>
+              <Text style={{ color: '#fbbf24', fontSize: 14 }}>{this.state.error && this.state.error.toString()}</Text>
               
-              <h3>Component Stack:</h3>
-              <p style={{ color: '#60a5fa' }}>{this.state.errorInfo && this.state.errorInfo.componentStack}</p>
+              <Text style={{ color: '#ffffff', fontSize: 18, fontWeight: 'bold', marginTop: 16, marginBottom: 8 }}>Component Stack:</Text>
+              <Text style={{ color: '#60a5fa', fontSize: 12, fontFamily: 'monospace' }}>{this.state.errorInfo && this.state.errorInfo.componentStack}</Text>
               
-              <h3>Error Stack:</h3>
-              <p style={{ color: '#f87171' }}>{this.state.error && this.state.error.stack}</p>
-            </div>
-          </details>
+              <Text style={{ color: '#ffffff', fontSize: 18, fontWeight: 'bold', marginTop: 16, marginBottom: 8 }}>Error Stack:</Text>
+              <ScrollView style={{ maxHeight: 200 }}>
+                <Text style={{ color: '#f87171', fontSize: 12, fontFamily: 'monospace' }}>{this.state.error && this.state.error.stack}</Text>
+              </ScrollView>
+            </View>
+          </View>
           
-          <button 
-            onClick={() => window.location.reload()}
+          <TouchableOpacity 
+            onPress={() => window.location.reload()}
             style={{
-              marginTop: '20px',
-              padding: '10px 20px',
+              marginTop: 20,
+              padding: 10,
               backgroundColor: '#3b82f6',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
+              borderRadius: 4,
+              alignItems: 'center'
             }}
           >
-            Reload Page
-          </button>
-        </div>
+            <Text style={{ color: '#ffffff', fontSize: 16, fontWeight: '600' }}>Reload Page</Text>
+          </TouchableOpacity>
+        </View>
       );
     }
 

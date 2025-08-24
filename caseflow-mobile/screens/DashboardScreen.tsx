@@ -134,11 +134,11 @@ const DashboardScreen: React.FC = () => {
           </View>
 
           <View style={{ padding: 16, marginTop: 16 }}>
-            <View style={{ flexDirection: 'row', gap: 8 }}>
+            <View style={{ flexDirection: 'row' }}>
               <StatCard title="Assigned" count={assignedCount} color="border-t-4 border-blue-500" path="Assigned"/>
               <StatCard title="In Progress" count={inProgressCount} color="border-t-4 border-yellow-500" path="In Progress" />
             </View>
-            <View style={{ flexDirection: 'row', gap: 8, marginTop: 16 }}>
+            <View style={{ flexDirection: 'row', marginTop: 16 }}>
               <StatCard title="Completed" count={completedCount} color="border-t-4 border-green-500" path="Completed"/>
               <StatCard title="Saved" count={savedCount} color="border-t-4 border-purple-500" path="Saved" />
             </View>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { checkPermissions, requestAllPermissions, openAppSettings, PermissionResult } from '../utils/permissions';
 import { Capacitor } from '@capacitor/core';
 
@@ -50,11 +51,11 @@ const PermissionStatus: React.FC<PermissionStatusProps> = ({
 
   if (!permissions) {
     return (
-      <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4">
-        <div className="text-center text-gray-400">
+      <View style={{ backgroundColor: 'rgba(17, 24, 39, 0.5)', borderWidth: 1, borderColor: '#374151', borderRadius: 8, padding: 16 }}>
+        <Text style={{ textAlign: 'center', color: '#9CA3AF' }}>
           Checking permissions...
-        </div>
-      </div>
+        </Text>
+      </View>
     );
   }
 
@@ -95,88 +96,147 @@ const PermissionStatus: React.FC<PermissionStatusProps> = ({
   }
 
   return (
-    <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4">
-      <div className="flex items-center justify-between mb-4">
-        <h6 className="font-semibold text-light-text">
+    <View style={{ backgroundColor: 'rgba(17, 24, 39, 0.5)', borderWidth: 1, borderColor: '#374151', borderRadius: 8, padding: 16 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <Text style={{ fontWeight: '600', color: '#F9FAFB', fontSize: 16 }}>
           {showOnlyDenied ? '⚠️ Permission Required' : '🔐 App Permissions'}
-        </h6>
+        </Text>
         {!hasAllPermissions && (
-          <button
-            onClick={requestPermissions}
+          <TouchableOpacity
+            onPress={requestPermissions}
             disabled={isLoading}
-            className="px-3 py-1 text-xs font-semibold rounded bg-brand-primary hover:bg-brand-secondary text-white transition-colors disabled:opacity-50"
+            style={{
+              paddingHorizontal: 12,
+              paddingVertical: 4,
+              borderRadius: 4,
+              backgroundColor: isLoading ? '#6B7280' : '#00a950'
+            }}
           >
-            {isLoading ? 'Requesting...' : 'Grant Permissions'}
-          </button>
+            <Text style={{ color: '#ffffff', fontSize: 12, fontWeight: '600' }}>
+              {isLoading ? 'Requesting...' : 'Grant Permissions'}
+            </Text>
+          </TouchableOpacity>
         )}
-      </div>
+      </View>
 
-      <div className="space-y-3">
+      <View>
         {itemsToShow.map((item) => (
-          <div key={item.name} className="flex items-start gap-3">
-            <span className="text-lg">{item.icon}</span>
-            <div className="flex-1">
-              <div className="flex items-center justify-between">
-                <span className="font-medium text-light-text">{item.name}</span>
-                <div className="flex items-center gap-2">
+          <View key={item.name} style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 12 }}>
+            <Text style={{ fontSize: 18, marginRight: 12 }}>{item.icon}</Text>
+            <View style={{ flex: 1 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Text style={{ fontWeight: '500', color: '#F9FAFB' }}>{item.name}</Text>
+                <View>
                   {item.status.granted ? (
-                    <span className="text-xs px-2 py-1 rounded bg-green-900/30 text-green-400 border border-green-700">
-                      ✅ Granted
-                    </span>
+                    <View style={{
+                      paddingHorizontal: 8,
+                      paddingVertical: 4,
+                      borderRadius: 4,
+                      backgroundColor: 'rgba(34, 197, 94, 0.3)',
+                      borderWidth: 1,
+                      borderColor: '#15803d'
+                    }}>
+                      <Text style={{ fontSize: 10, color: '#4ade80' }}>✅ Granted</Text>
+                    </View>
                   ) : item.status.denied ? (
-                    <span className="text-xs px-2 py-1 rounded bg-red-900/30 text-red-400 border border-red-700">
-                      ❌ Denied
-                    </span>
+                    <View style={{
+                      paddingHorizontal: 8,
+                      paddingVertical: 4,
+                      borderRadius: 4,
+                      backgroundColor: 'rgba(239, 68, 68, 0.3)',
+                      borderWidth: 1,
+                      borderColor: '#dc2626'
+                    }}>
+                      <Text style={{ fontSize: 10, color: '#f87171' }}>❌ Denied</Text>
+                    </View>
                   ) : (
-                    <span className="text-xs px-2 py-1 rounded bg-yellow-900/30 text-yellow-400 border border-yellow-700">
-                      ⏳ Pending
-                    </span>
+                    <View style={{
+                      paddingHorizontal: 8,
+                      paddingVertical: 4,
+                      borderRadius: 4,
+                      backgroundColor: 'rgba(245, 158, 11, 0.3)',
+                      borderWidth: 1,
+                      borderColor: '#d97706'
+                    }}>
+                      <Text style={{ fontSize: 10, color: '#fbbf24' }}>⏳ Pending</Text>
+                    </View>
                   )}
-                </div>
-              </div>
-              <p className="text-xs text-gray-400 mt-1">{item.description}</p>
-            </div>
-          </div>
+                </View>
+              </View>
+              <Text style={{ fontSize: 12, color: '#9CA3AF', marginTop: 4 }}>{item.description}</Text>
+            </View>
+          </View>
         ))}
-      </div>
+      </View>
 
       {deniedPermissions.length > 0 && (
-        <div className="mt-4 p-3 bg-red-900/20 border border-red-700 rounded">
-          <p className="text-sm text-red-400 mb-2">
+        <View style={{
+          marginTop: 16,
+          padding: 12,
+          backgroundColor: 'rgba(239, 68, 68, 0.2)',
+          borderWidth: 1,
+          borderColor: '#dc2626',
+          borderRadius: 4
+        }}>
+          <Text style={{ fontSize: 14, color: '#f87171', marginBottom: 8 }}>
             Some permissions are denied. To enable them:
-          </p>
-          <div className="flex flex-col sm:flex-row gap-2">
+          </Text>
+          <View>
             {Capacitor.getPlatform() === 'ios' && (
-              <button
-                onClick={handleOpenSettings}
-                className="px-3 py-2 text-xs font-semibold rounded bg-red-600 hover:bg-red-700 text-white transition-colors"
+              <TouchableOpacity
+                onPress={handleOpenSettings}
+                style={{
+                  paddingHorizontal: 12,
+                  paddingVertical: 8,
+                  borderRadius: 4,
+                  backgroundColor: '#dc2626',
+                  marginBottom: 8
+                }}
               >
-                Open Settings
-              </button>
+                <Text style={{ fontSize: 12, fontWeight: '600', color: '#ffffff' }}>
+                  Open Settings
+                </Text>
+              </TouchableOpacity>
             )}
             {Capacitor.getPlatform() === 'android' && (
-              <div className="text-xs text-gray-400">
+              <Text style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 8 }}>
                 Go to: Settings → Apps → CaseFlow Mobile → Permissions
-              </div>
+              </Text>
             )}
-            <button
-              onClick={checkCurrentPermissions}
-              className="px-3 py-2 text-xs font-semibold rounded border border-red-600 text-red-400 hover:bg-red-900/30 transition-colors"
+            <TouchableOpacity
+              onPress={checkCurrentPermissions}
+              style={{
+                paddingHorizontal: 12,
+                paddingVertical: 8,
+                borderRadius: 4,
+                borderWidth: 1,
+                borderColor: '#dc2626',
+                backgroundColor: 'transparent'
+              }}
             >
-              Refresh Status
-            </button>
-          </div>
-        </div>
+              <Text style={{ fontSize: 12, fontWeight: '600', color: '#f87171' }}>
+                Refresh Status
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       )}
 
       {hasAllPermissions && !showOnlyDenied && (
-        <div className="mt-4 p-3 bg-green-900/20 border border-green-700 rounded">
-          <p className="text-sm text-green-400">
+        <View style={{
+          marginTop: 16,
+          padding: 12,
+          backgroundColor: 'rgba(34, 197, 94, 0.2)',
+          borderWidth: 1,
+          borderColor: '#15803d',
+          borderRadius: 4
+        }}>
+          <Text style={{ fontSize: 14, color: '#4ade80' }}>
             ✅ All permissions granted! The app is ready to use.
-          </p>
-        </div>
+          </Text>
+        </View>
       )}
-    </div>
+    </View>
   );
 };
 

@@ -19,7 +19,9 @@ export function RealTimeDashboard({ refreshInterval = 30000 }: RealTimeDashboard
     lastUpdated: new Date().toISOString(),
   });
 
-  const { isConnected, webSocketService } = useWebSocket();
+  const { isConnected, webSocketService } = useWebSocket({
+    autoConnect: false, // Use existing global connection
+  });
 
   // Request real-time stats
   const requestStats = () => {

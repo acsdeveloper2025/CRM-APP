@@ -3,6 +3,7 @@
 import { BrowserRouter as Router } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
+import { useEffect } from 'react';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -13,12 +14,19 @@ import { useWebSocket } from '@/hooks/useWebSocket';
 
 // Global WebSocket connection component
 function GlobalWebSocket() {
-  useWebSocket({
+  const { isConnected } = useWebSocket({
     autoConnect: true,
     onNotification: (notification) => {
       // Handle global notifications
+      console.log('Global notification:', notification);
     },
   });
+  
+  // Log connection status for debugging
+  useEffect(() => {
+    console.log('Global WebSocket connection status:', isConnected ? 'Connected' : 'Disconnected');
+  }, [isConnected]);
+  
   return null;
 }
 

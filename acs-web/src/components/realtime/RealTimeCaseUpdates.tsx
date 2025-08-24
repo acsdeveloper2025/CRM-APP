@@ -36,6 +36,7 @@ export function RealTimeCaseUpdates({ caseId, maxUpdates = 20 }: RealTimeCaseUpd
   const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
 
   const { subscribeToCase, unsubscribeFromCase } = useWebSocket({
+    autoConnect: false, // Use existing global connection
     onCaseStatusUpdate: (update: CaseStatusUpdate) => {
       if (!caseId || update.caseId === caseId) {
         addUpdate({

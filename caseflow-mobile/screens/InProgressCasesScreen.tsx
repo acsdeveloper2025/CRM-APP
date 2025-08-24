@@ -1,5 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { CaseStatus, Case } from '../types';
 import { useCases } from '../context/CaseContext';
 import CaseListScreen from './CaseListScreen';
@@ -50,29 +51,42 @@ const InProgressCasesScreen: React.FC = () => {
       tabKey="in-progress"
       searchPlaceholder="Search in progress cases..."
       customHeaderActions={
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-sm text-gray-400">Sort by:</span>
-          <button
-            onClick={() => setSortMode('order')}
-            className={`px-3 py-1 text-sm rounded-md transition-colors ${
-              sortMode === 'order'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-            }`}
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+          <Text style={{ fontSize: 14, color: '#9ca3af', marginRight: 8 }}>Sort by:</Text>
+          <TouchableOpacity
+            onPress={() => setSortMode('order')}
+            style={{
+              paddingHorizontal: 12,
+              paddingVertical: 4,
+              borderRadius: 6,
+              backgroundColor: sortMode === 'order' ? '#2563eb' : '#374151',
+              marginRight: 8
+            }}
           >
-            Order
-          </button>
-          <button
-            onClick={() => setSortMode('priority')}
-            className={`px-3 py-1 text-sm rounded-md transition-colors ${
-              sortMode === 'priority'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-            }`}
+            <Text style={{
+              fontSize: 14,
+              color: sortMode === 'order' ? '#ffffff' : '#d1d5db'
+            }}>
+              Order
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setSortMode('priority')}
+            style={{
+              paddingHorizontal: 12,
+              paddingVertical: 4,
+              borderRadius: 6,
+              backgroundColor: sortMode === 'priority' ? '#2563eb' : '#374151'
+            }}
           >
-            Priority
-          </button>
-        </div>
+            <Text style={{
+              fontSize: 14,
+              color: sortMode === 'priority' ? '#ffffff' : '#d1d5db'
+            }}>
+              Priority
+            </Text>
+          </TouchableOpacity>
+        </View>
       }
     />
   );

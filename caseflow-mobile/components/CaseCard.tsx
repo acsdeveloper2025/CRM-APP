@@ -1,4 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
+// Fixed JSX compilation errors - converted HTML elements to React Native components
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { Case, CaseStatus, VerificationType, VerificationOutcome, RevokeReason } from '../types';
 import { useCases } from '../context/CaseContext';
 import { ChevronDownIcon, ChevronUpIcon, CheckIcon, XIcon, InfoIcon, ArrowUpIcon, ArrowDownIcon, AttachmentIcon } from './Icons';
@@ -252,37 +254,40 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, isReorderable = false, is
   const timestamp = getTimestampInfo();
 
   const renderOutcomeSelectionPrompt = () => (
-    <div style={{
-      textAlign: 'center',
-      padding: '24px 16px',
-      margin: '16px 0',
+    <View style={{
+      alignItems: 'center',
+      paddingVertical: 24,
+      paddingHorizontal: 16,
+      marginVertical: 16,
       backgroundColor: '#1F2937',
-      borderRadius: '8px',
-      border: '2px dashed #374151'
+      borderRadius: 8,
+      borderWidth: 2,
+      borderColor: '#374151',
+      borderStyle: 'dashed'
     }}>
-      <div style={{ color: '#00a950', marginBottom: '8px', fontSize: '24px' }}>📋</div>
-      <p style={{ color: '#F9FAFB', fontWeight: '600', marginBottom: '4px' }}>
+      <Text style={{ color: '#00a950', marginBottom: 8, fontSize: 24 }}>📋</Text>
+      <Text style={{ color: '#F9FAFB', fontWeight: '600', marginBottom: 4 }}>
         Select Verification Outcome
-      </p>
-      <p style={{ color: '#9CA3AF', fontSize: '14px' }}>
+      </Text>
+      <Text style={{ color: '#9CA3AF', fontSize: 14, textAlign: 'center' }}>
         Choose an outcome from the dropdown above to automatically open the verification form
-      </p>
-    </div>
+      </Text>
+    </View>
   );
 
   const renderFormContent = () => {
     if (caseData.verificationType === VerificationType.Residence) {
       switch (caseData.verificationOutcome) {
         case VerificationOutcome.PositiveAndDoorLocked:
-          return caseData.residenceReport ? <PositiveResidenceForm caseData={caseData} /> : <p>Loading Residence Form...</p>;
+          return caseData.residenceReport ? <PositiveResidenceForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading Residence Form...</Text>;
         case VerificationOutcome.ShiftedAndDoorLocked:
-          return caseData.shiftedResidenceReport ? <ShiftedResidenceForm caseData={caseData} /> : <p>Loading Shifted Residence Form...</p>;
+          return caseData.shiftedResidenceReport ? <ShiftedResidenceForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading Shifted Residence Form...</Text>;
         case VerificationOutcome.NSPAndDoorLocked:
-          return caseData.nspResidenceReport ? <NspResidenceForm caseData={caseData} /> : <p>Loading NSP Residence Form...</p>;
+          return caseData.nspResidenceReport ? <NspResidenceForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading NSP Residence Form...</Text>;
         case VerificationOutcome.ERT:
-            return caseData.entryRestrictedResidenceReport ? <EntryRestrictedResidenceForm caseData={caseData} /> : <p>Loading Entry Restricted Form...</p>;
+            return caseData.entryRestrictedResidenceReport ? <EntryRestrictedResidenceForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading Entry Restricted Form...</Text>;
         case VerificationOutcome.Untraceable:
-            return caseData.untraceableResidenceReport ? <UntraceableResidenceForm caseData={caseData} /> : <p>Loading Untraceable Residence Form...</p>;
+            return caseData.untraceableResidenceReport ? <UntraceableResidenceForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading Untraceable Residence Form...</Text>;
         default:
             return renderOutcomeSelectionPrompt();
       }
@@ -291,15 +296,15 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, isReorderable = false, is
     if (caseData.verificationType === VerificationType.ResidenceCumOffice) {
         switch (caseData.verificationOutcome) {
             case VerificationOutcome.PositiveAndDoorLocked:
-                return caseData.resiCumOfficeReport ? <PositiveResiCumOfficeForm caseData={caseData} /> : <p>Loading Resi-cum-Office Form...</p>;
+                return caseData.resiCumOfficeReport ? <PositiveResiCumOfficeForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading Resi-cum-Office Form...</Text>;
             case VerificationOutcome.ShiftedAndDoorLocked:
-                return caseData.shiftedResiCumOfficeReport ? <ShiftedResiCumOfficeForm caseData={caseData} /> : <p>Loading Shifted Resi-cum-Office Form...</p>;
+                return caseData.shiftedResiCumOfficeReport ? <ShiftedResiCumOfficeForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading Shifted Resi-cum-Office Form...</Text>;
             case VerificationOutcome.NSPAndDoorLocked:
-                return caseData.nspResiCumOfficeReport ? <NspResiCumOfficeForm caseData={caseData} /> : <p>Loading NSP Resi-cum-Office Form...</p>;
+                return caseData.nspResiCumOfficeReport ? <NspResiCumOfficeForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading NSP Resi-cum-Office Form...</Text>;
             case VerificationOutcome.ERT:
-                return caseData.entryRestrictedResiCumOfficeReport ? <EntryRestrictedResiCumOfficeForm caseData={caseData} /> : <p>Loading ERT Resi-cum-Office Form...</p>;
+                return caseData.entryRestrictedResiCumOfficeReport ? <EntryRestrictedResiCumOfficeForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading ERT Resi-cum-Office Form...</Text>;
             case VerificationOutcome.Untraceable:
-                return caseData.untraceableResiCumOfficeReport ? <UntraceableResiCumOfficeForm caseData={caseData} /> : <p>Loading Untraceable Resi-cum-Office Form...</p>;
+                return caseData.untraceableResiCumOfficeReport ? <UntraceableResiCumOfficeForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading Untraceable Resi-cum-Office Form...</Text>;
             default:
                 return renderOutcomeSelectionPrompt();
         }
@@ -308,15 +313,15 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, isReorderable = false, is
     if (caseData.verificationType === VerificationType.Office) {
         switch (caseData.verificationOutcome) {
             case VerificationOutcome.PositiveAndDoorLocked:
-                return caseData.positiveOfficeReport ? <PositiveOfficeForm caseData={caseData} /> : <p>Loading Office Form...</p>;
+                return caseData.positiveOfficeReport ? <PositiveOfficeForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading Office Form...</Text>;
             case VerificationOutcome.ShiftedAndDoorLocked:
-                return caseData.shiftedOfficeReport ? <ShiftedOfficeForm caseData={caseData} /> : <p>Loading Shifted Office Form...</p>;
+                return caseData.shiftedOfficeReport ? <ShiftedOfficeForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading Shifted Office Form...</Text>;
             case VerificationOutcome.NSPAndDoorLocked:
-                return caseData.nspOfficeReport ? <NspOfficeForm caseData={caseData} /> : <p>Loading NSP Office Form...</p>;
+                return caseData.nspOfficeReport ? <NspOfficeForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading NSP Office Form...</Text>;
             case VerificationOutcome.ERT:
-                return caseData.entryRestrictedOfficeReport ? <EntryRestrictedOfficeForm caseData={caseData} /> : <p>Loading ERT Office Form...</p>;
+                return caseData.entryRestrictedOfficeReport ? <EntryRestrictedOfficeForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading ERT Office Form...</Text>;
             case VerificationOutcome.Untraceable:
-                return caseData.untraceableOfficeReport ? <UntraceableOfficeForm caseData={caseData} /> : <p>Loading Untraceable Office Form...</p>;
+                return caseData.untraceableOfficeReport ? <UntraceableOfficeForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading Untraceable Office Form...</Text>;
             default:
                 return renderOutcomeSelectionPrompt();
         }
@@ -325,15 +330,15 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, isReorderable = false, is
     if (caseData.verificationType === VerificationType.Business) {
         switch (caseData.verificationOutcome) {
             case VerificationOutcome.PositiveAndDoorLocked:
-                return caseData.positiveBusinessReport ? <PositiveBusinessForm caseData={caseData} /> : <p>Loading Business Form...</p>;
+                return caseData.positiveBusinessReport ? <PositiveBusinessForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading Business Form...</Text>;
             case VerificationOutcome.ShiftedAndDoorLocked:
-                return caseData.shiftedBusinessReport ? <ShiftedBusinessForm caseData={caseData} /> : <p>Loading Shifted Business Form...</p>;
+                return caseData.shiftedBusinessReport ? <ShiftedBusinessForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading Shifted Business Form...</Text>;
             case VerificationOutcome.NSPAndDoorLocked:
-                return caseData.nspBusinessReport ? <NspBusinessForm caseData={caseData} /> : <p>Loading NSP Business Form...</p>;
+                return caseData.nspBusinessReport ? <NspBusinessForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading NSP Business Form...</Text>;
             case VerificationOutcome.ERT:
-                return caseData.entryRestrictedBusinessReport ? <EntryRestrictedBusinessForm caseData={caseData} /> : <p>Loading ERT Business Form...</p>;
+                return caseData.entryRestrictedBusinessReport ? <EntryRestrictedBusinessForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading ERT Business Form...</Text>;
             case VerificationOutcome.Untraceable:
-                return caseData.untraceableBusinessReport ? <UntraceableBusinessForm caseData={caseData} /> : <p>Loading Untraceable Business Form...</p>;
+                return caseData.untraceableBusinessReport ? <UntraceableBusinessForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading Untraceable Business Form...</Text>;
             default:
                 return renderOutcomeSelectionPrompt();
         }
@@ -342,15 +347,15 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, isReorderable = false, is
     if (caseData.verificationType === VerificationType.Builder) {
         switch (caseData.verificationOutcome) {
             case VerificationOutcome.PositiveAndDoorLocked:
-                return caseData.positiveBuilderReport ? <PositiveBuilderForm caseData={caseData} /> : <p>Loading Builder Form...</p>;
+                return caseData.positiveBuilderReport ? <PositiveBuilderForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading Builder Form...</Text>;
             case VerificationOutcome.ShiftedAndDoorLocked:
-                return caseData.shiftedBuilderReport ? <ShiftedBuilderForm caseData={caseData} /> : <p>Loading Shifted Builder Form...</p>;
+                return caseData.shiftedBuilderReport ? <ShiftedBuilderForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading Shifted Builder Form...</Text>;
             case VerificationOutcome.NSPAndDoorLocked:
-                return caseData.nspBuilderReport ? <NspBuilderForm caseData={caseData} /> : <p>Loading NSP Builder Form...</p>;
+                return caseData.nspBuilderReport ? <NspBuilderForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading NSP Builder Form...</Text>;
             case VerificationOutcome.ERT:
-                return caseData.entryRestrictedBuilderReport ? <EntryRestrictedBuilderForm caseData={caseData} /> : <p>Loading ERT Builder Form...</p>;
+                return caseData.entryRestrictedBuilderReport ? <EntryRestrictedBuilderForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading ERT Builder Form...</Text>;
             case VerificationOutcome.Untraceable:
-                return caseData.untraceableBuilderReport ? <UntraceableBuilderForm caseData={caseData} /> : <p>Loading Untraceable Builder Form...</p>;
+                return caseData.untraceableBuilderReport ? <UntraceableBuilderForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading Untraceable Builder Form...</Text>;
             default:
                 return renderOutcomeSelectionPrompt();
         }
@@ -359,15 +364,15 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, isReorderable = false, is
     if (caseData.verificationType === VerificationType.NOC) {
         switch (caseData.verificationOutcome) {
             case VerificationOutcome.PositiveAndDoorLocked:
-                return caseData.positiveNocReport ? <PositiveNocForm caseData={caseData} /> : <p>Loading NOC Form...</p>;
+                return caseData.positiveNocReport ? <PositiveNocForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading NOC Form...</Text>;
             case VerificationOutcome.ShiftedAndDoorLocked:
-                return caseData.shiftedNocReport ? <ShiftedNocForm caseData={caseData} /> : <p>Loading Shifted NOC Form...</p>;
+                return caseData.shiftedNocReport ? <ShiftedNocForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading Shifted NOC Form...</Text>;
             case VerificationOutcome.NSPAndDoorLocked:
-                return caseData.nspNocReport ? <NspNocForm caseData={caseData} /> : <p>Loading NSP NOC Form...</p>;
+                return caseData.nspNocReport ? <NspNocForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading NSP NOC Form...</Text>;
             case VerificationOutcome.ERT:
-                return caseData.entryRestrictedNocReport ? <EntryRestrictedNocForm caseData={caseData} /> : <p>Loading ERT NOC Form...</p>;
+                return caseData.entryRestrictedNocReport ? <EntryRestrictedNocForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading ERT NOC Form...</Text>;
             case VerificationOutcome.Untraceable:
-                return caseData.untraceableNocReport ? <UntraceableNocForm caseData={caseData} /> : <p>Loading Untraceable NOC Form...</p>;
+                return caseData.untraceableNocReport ? <UntraceableNocForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading Untraceable NOC Form...</Text>;
             default:
                 return renderOutcomeSelectionPrompt();
         }
@@ -376,15 +381,15 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, isReorderable = false, is
     if (caseData.verificationType === VerificationType.Connector) {
         switch (caseData.verificationOutcome) {
             case VerificationOutcome.PositiveAndDoorLocked:
-                return caseData.positiveDsaReport ? <PositiveDsaForm caseData={caseData} /> : <p>Loading DSA/DST Form...</p>;
+                return caseData.positiveDsaReport ? <PositiveDsaForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading DSA/DST Form...</Text>;
             case VerificationOutcome.ShiftedAndDoorLocked:
-                return caseData.shiftedDsaReport ? <ShiftedDsaForm caseData={caseData} /> : <p>Loading Shifted DSA/DST Form...</p>;
+                return caseData.shiftedDsaReport ? <ShiftedDsaForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading Shifted DSA/DST Form...</Text>;
             case VerificationOutcome.NSPAndDoorLocked:
-                return caseData.nspDsaReport ? <NspDsaForm caseData={caseData} /> : <p>Loading NSP DSA/DST Form...</p>;
+                return caseData.nspDsaReport ? <NspDsaForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading NSP DSA/DST Form...</Text>;
             case VerificationOutcome.ERT:
-                return caseData.entryRestrictedDsaReport ? <EntryRestrictedDsaForm caseData={caseData} /> : <p>Loading ERT DSA/DST Form...</p>;
+                return caseData.entryRestrictedDsaReport ? <EntryRestrictedDsaForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading ERT DSA/DST Form...</Text>;
             case VerificationOutcome.Untraceable:
-                return caseData.untraceableDsaReport ? <UntraceableDsaForm caseData={caseData} /> : <p>Loading Untraceable DSA/DST Form...</p>;
+                return caseData.untraceableDsaReport ? <UntraceableDsaForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading Untraceable DSA/DST Form...</Text>;
             default:
                 return renderOutcomeSelectionPrompt();
         }
@@ -396,11 +401,11 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, isReorderable = false, is
             case VerificationOutcome.NSPAndDoorLocked:
                 return (caseData.positivePropertyApfReport || caseData.nspPropertyApfReport) ?
                     <PositiveNegativePropertyApfForm caseData={caseData} /> :
-                    <p>Loading Property APF Form...</p>;
+                    <Text style={{ color: '#9CA3AF' }}>Loading Property APF Form...</Text>;
             case VerificationOutcome.ERT:
-                return caseData.entryRestrictedPropertyApfReport ? <EntryRestrictedPropertyApfForm caseData={caseData} /> : <p>Loading ERT Property (APF) Form...</p>;
+                return caseData.entryRestrictedPropertyApfReport ? <EntryRestrictedPropertyApfForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading ERT Property (APF) Form...</Text>;
             case VerificationOutcome.Untraceable:
-                return caseData.untraceablePropertyApfReport ? <UntraceablePropertyApfForm caseData={caseData} /> : <p>Loading Untraceable Property (APF) Form...</p>;
+                return caseData.untraceablePropertyApfReport ? <UntraceablePropertyApfForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading Untraceable Property (APF) Form...</Text>;
             default:
                 return renderOutcomeSelectionPrompt();
         }
@@ -409,75 +414,125 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, isReorderable = false, is
     if (caseData.verificationType === VerificationType.PropertyIndividual) {
         switch (caseData.verificationOutcome) {
             case VerificationOutcome.PositiveAndDoorLocked:
-                return caseData.positivePropertyIndividualReport ? <PositivePropertyIndividualForm caseData={caseData} /> : <p>Loading Property (Individual) Form...</p>;
+                return caseData.positivePropertyIndividualReport ? <PositivePropertyIndividualForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading Property (Individual) Form...</Text>;
             case VerificationOutcome.NSPAndDoorLocked:
-                return caseData.nspPropertyIndividualReport ? <NspPropertyIndividualForm caseData={caseData} /> : <p>Loading NSP Property (Individual) Form...</p>;
+                return caseData.nspPropertyIndividualReport ? <NspPropertyIndividualForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading NSP Property (Individual) Form...</Text>;
             case VerificationOutcome.ERT:
-                return caseData.entryRestrictedPropertyIndividualReport ? <EntryRestrictedPropertyIndividualForm caseData={caseData} /> : <p>Loading ERT Property (Individual) Form...</p>;
+                return caseData.entryRestrictedPropertyIndividualReport ? <EntryRestrictedPropertyIndividualForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading ERT Property (Individual) Form...</Text>;
             case VerificationOutcome.Untraceable:
-                return caseData.untraceablePropertyIndividualReport ? <UntraceablePropertyIndividualForm caseData={caseData} /> : <p>Loading Untraceable Property (Individual) Form...</p>;
+                return caseData.untraceablePropertyIndividualReport ? <UntraceablePropertyIndividualForm caseData={caseData} /> : <Text style={{ color: '#9CA3AF' }}>Loading Untraceable Property (Individual) Form...</Text>;
             default:
                 return renderOutcomeSelectionPrompt();
         }
     }
 
     return (
-        <p className="text-medium-text mt-4">No specific form for this verification type/outcome combination.</p>
+        <Text style={{ color: '#9CA3AF', marginTop: 16 }}>No specific form for this verification type/outcome combination.</Text>
     );
   };
 
 
   return (
-    <>
-    <div className={`bg-dark-card rounded-lg shadow-lg mb-4 mx-4 p-4 transition-all duration-300 ${getStatusColor()} ${hasAutoSaveData ? 'ring-2 ring-yellow-400 bg-yellow-900/20 border-yellow-400/50' : ''}`}>
-      <div
-        className={`flex justify-between items-start ${(caseData.status !== CaseStatus.Assigned && caseData.status !== CaseStatus.Completed && !caseData.isSaved) ? 'cursor-pointer' : ''}`}
-        onClick={(caseData.status !== CaseStatus.Assigned && caseData.status !== CaseStatus.Completed && !caseData.isSaved) ? () => setIsExpanded(!isExpanded) : undefined}
+    <View style={{ flex: 1 }}>
+    <View style={{
+      backgroundColor: '#1F2937',
+      borderRadius: 8,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      marginBottom: 16,
+      marginHorizontal: 16,
+      padding: 16,
+      borderLeftWidth: 4,
+      borderLeftColor: getStatusColor(),
+      ...(hasAutoSaveData ? {
+        borderWidth: 2,
+        borderColor: '#FBBF24',
+        backgroundColor: '#451A03'
+      } : {})
+    }}>
+      <TouchableOpacity
+        style={{
+          flex: 1,
+          justifyContent: 'space-between',
+          alignItems: 'flex-start'
+        }}
+        onPress={(caseData.status !== CaseStatus.Assigned && caseData.status !== CaseStatus.Completed && !caseData.isSaved) ? () => setIsExpanded(!isExpanded) : undefined}
+        disabled={caseData.status === CaseStatus.Assigned || caseData.status === CaseStatus.Completed || caseData.isSaved}
       >
-        <div className="flex-1">
-          <div className="flex justify-between items-start">
-              <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-brand-primary">{caseData.verificationType}</p>
+        <View style={{ flex: 1 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <View>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <Text style={{ fontSize: 12, fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 1, color: '#10B981' }}>{caseData.verificationType}</Text>
                     {hasAutoSaveData && (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-400/20 text-yellow-300 border border-yellow-400/30">
-                        📝 Draft Saved
-                      </span>
+                      <View style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        paddingHorizontal: 8,
+                        paddingVertical: 2,
+                        borderRadius: 12,
+                        backgroundColor: 'rgba(251, 191, 36, 0.2)',
+                        borderWidth: 1,
+                        borderColor: 'rgba(251, 191, 36, 0.3)'
+                      }}>
+                        <Text style={{ fontSize: 12, fontWeight: '500', color: '#FCD34D' }}>📝 Draft Saved</Text>
+                      </View>
                     )}
-                  </div>
-                  <h3 className="font-bold text-lg text-light-text">{caseData.title}</h3>
-              </div>
-              {timestamp.value && <p className="text-xs text-gray-400 text-right shrink-0 ml-2">{`${timestamp.label}`}<br/>{`${timestamp.value}`}</p>}
-          </div>
-          <div className="flex justify-between items-center mt-1">
-            <p className="text-sm text-medium-text">{caseData.customer.name} - {caseData.id}</p>
-            <div className="flex items-center gap-3">
+                  </View>
+                  <Text style={{ fontWeight: 'bold', fontSize: 18, color: '#F9FAFB' }}>{caseData.title}</Text>
+              </View>
+              {timestamp.value && (
+                <View style={{ alignItems: 'flex-end', marginLeft: 8 }}>
+                  <Text style={{ fontSize: 12, color: '#9CA3AF', textAlign: 'right' }}>{timestamp.label}</Text>
+                  <Text style={{ fontSize: 12, color: '#9CA3AF', textAlign: 'right' }}>{timestamp.value}</Text>
+                </View>
+              )}
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+            <Text style={{ fontSize: 14, color: '#D1D5DB' }}>{caseData.customer.name} - {caseData.id}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               {/* Show attachment button for In Progress cases */}
               {caseData.status === CaseStatus.InProgress && (
-                <button
-                  onClick={(e) => {
+                <TouchableOpacity
+                  onPress={(e) => {
                     e.stopPropagation();
                     setIsAttachmentsModalOpen(true);
                   }}
-                  className="flex flex-col items-center text-purple-400 hover:text-purple-300 transition-colors relative"
+                  style={{
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    position: 'relative'
+                  }}
                 >
                   <AttachmentIcon />
-                  <span className="text-xs mt-1">Attachments</span>
+                  <Text style={{ fontSize: 12, marginTop: 4, color: '#A855F7' }}>Attachments</Text>
                   {attachmentCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                      {attachmentCount}
-                    </span>
+                    <View style={{
+                      position: 'absolute',
+                      top: -4,
+                      right: -4,
+                      backgroundColor: '#7C3AED',
+                      width: 16,
+                      height: 16,
+                      borderRadius: 8,
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <Text style={{ color: 'white', fontSize: 12 }}>{attachmentCount}</Text>
+                    </View>
                   )}
-                </button>
+                </TouchableOpacity>
               )}
               {/* Show priority input only for In Progress cases */}
               {caseData.status === CaseStatus.InProgress && !caseData.isSaved && (
                 <PriorityInput caseId={caseData.id} />
               )}
-            </div>
-          </div>
-        </div>
-      </div>
+            </View>
+          </View>
+        </View>
+      </TouchableOpacity>
 
       {/* Show comprehensive timeline for completed cases */}
       {caseData.status === CaseStatus.Completed && (
@@ -486,84 +541,107 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, isReorderable = false, is
 
       {/* Submission status and re-submit functionality for completed cases */}
       {caseData.status === CaseStatus.Completed && (
-        <div className="mt-3">
+        <View style={{ marginTop: 12 }}>
           {/* Submission Status Indicator */}
           {caseData.submissionStatus && (
-            <div className="mb-3">
+            <View style={{ marginBottom: 12 }}>
               {caseData.submissionStatus === 'success' && (
-                <div className="flex items-center gap-2 text-green-400 text-sm">
-                  <span>✅</span>
-                  <span>Successfully submitted to server</span>
-                </div>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <Text style={{ color: '#10B981', fontSize: 14 }}>✅</Text>
+                  <Text style={{ color: '#10B981', fontSize: 14 }}>Successfully submitted to server</Text>
+                </View>
               )}
 
               {caseData.submissionStatus === 'failed' && (
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-red-400 text-sm">
-                    <span>❌</span>
-                    <span>Submission failed</span>
-                  </div>
+                <View style={{ gap: 8 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <Text style={{ color: '#EF4444', fontSize: 14 }}>❌</Text>
+                    <Text style={{ color: '#EF4444', fontSize: 14 }}>Submission failed</Text>
+                  </View>
                   {caseData.submissionError && (
-                    <div className="text-xs text-red-300 bg-red-900/20 p-2 rounded border border-red-500/30">
-                      {caseData.submissionError}
-                    </div>
+                    <View style={{ padding: 8, borderRadius: 4, backgroundColor: 'rgba(239, 68, 68, 0.2)', borderWidth: 1, borderColor: 'rgba(239, 68, 68, 0.3)' }}>
+                      <Text style={{ color: '#FCA5A5', fontSize: 12 }}>{caseData.submissionError}</Text>
+                    </View>
                   )}
-                </div>
+                </View>
               )}
 
               {caseData.submissionStatus === 'submitting' && (
-                <div className="flex items-center gap-2 text-yellow-400 text-sm">
-                  <span>⏳</span>
-                  <span>Submitting to server...</span>
-                </div>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <Text style={{ color: '#FBBF24', fontSize: 14 }}>⏳</Text>
+                  <Text style={{ color: '#FBBF24', fontSize: 14 }}>Submitting to server...</Text>
+                </View>
               )}
 
               {caseData.submissionStatus === 'pending' && (
-                <div className="flex items-center gap-2 text-orange-400 text-sm">
-                  <span>⏸️</span>
-                  <span>Pending submission</span>
-                </div>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <Text style={{ color: '#F97316', fontSize: 14 }}>⏸️</Text>
+                  <Text style={{ color: '#F97316', fontSize: 14 }}>Pending submission</Text>
+                </View>
               )}
-            </div>
+            </View>
           )}
 
           {/* Submission Message */}
           {submissionMessage && (
-            <div className={`mb-3 p-2 rounded text-sm ${
-              submissionMessage.includes('success')
-                ? 'bg-green-900/20 border border-green-500/30 text-green-400'
-                : 'bg-red-900/20 border border-red-500/30 text-red-400'
-            }`}>
-              {submissionMessage}
-            </div>
+            <View style={{
+              marginBottom: 12,
+              padding: 8,
+              borderRadius: 4,
+              backgroundColor: submissionMessage.includes('success') ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+              borderWidth: 1,
+              borderColor: submissionMessage.includes('success') ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'
+            }}>
+              <Text style={{
+                color: submissionMessage.includes('success') ? '#10B981' : '#EF4444',
+                fontSize: 14
+              }}>{submissionMessage}</Text>
+            </View>
           )}
 
           {/* Re-submit Button */}
           {(caseData.submissionStatus === 'failed' || caseData.submissionStatus === 'pending' || caseData.isSaved) && (
-            <button
-              onClick={caseData.submissionStatus === 'failed' ? handleResubmitCase : handleSubmitCase}
+            <TouchableOpacity
+              onPress={caseData.submissionStatus === 'failed' ? handleResubmitCase : handleSubmitCase}
               disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-semibold rounded-md bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 disabled:opacity-50 text-white transition-colors flex items-center gap-2"
+              style={{
+                paddingHorizontal: 16,
+                paddingVertical: 8,
+                borderRadius: 6,
+                backgroundColor: isSubmitting ? 'rgba(37, 99, 235, 0.8)' : '#2563EB',
+                opacity: isSubmitting ? 0.5 : 1,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 8
+              }}
             >
               {isSubmitting ? (
                 <>
-                  <span className="animate-spin">⏳</span>
-                  <span>{caseData.submissionStatus === 'failed' ? 'Resubmitting...' : 'Submitting...'}</span>
+                  <Text style={{ color: 'white', fontSize: 14 }}>⏳</Text>
+                  <Text style={{ color: 'white', fontSize: 14, fontWeight: '600' }}>
+                    {caseData.submissionStatus === 'failed' ? 'Resubmitting...' : 'Submitting...'}
+                  </Text>
                 </>
               ) : (
                 <>
-                  <span>🔄</span>
-                  <span>{caseData.submissionStatus === 'failed' ? 'Re-submit Case' : 'Submit Case'}</span>
+                  <Text style={{ color: 'white', fontSize: 14 }}>🔄</Text>
+                  <Text style={{ color: 'white', fontSize: 14, fontWeight: '600' }}>
+                    {caseData.submissionStatus === 'failed' ? 'Re-submit Case' : 'Submit Case'}
+                  </Text>
                 </>
               )}
-            </button>
+            </TouchableOpacity>
           )}
-        </div>
+        </View>
       )}
 
-      <div className={`transition-all duration-500 ease-in-out ${isExpanded ? 'max-h-[8000px] mt-4' : 'max-h-0 overflow-hidden'}`}>
+      <View style={{
+        maxHeight: isExpanded ? 8000 : 0,
+        marginTop: isExpanded ? 16 : 0,
+        overflow: 'hidden'
+      }}>
           {isInProgress && verificationOutcomeOptions && (
-              <div className="mb-4" onClick={(e) => e.stopPropagation()}>
+              <View style={{ marginBottom: 16 }}>
                   <SelectField
                       label="Verification Outcome"
                       id={`outcome-${caseData.id}`}
@@ -574,248 +652,59 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, isReorderable = false, is
                       <option value="">Select Outcome...</option>
                       {verificationOutcomeOptions}
                   </SelectField>
-              </div>
+              </View>
           )}
-          <div
+          <ScrollView
             ref={formContentRef}
             style={{
-              maxHeight: isExpanded ? '70vh' : '0',
-              overflowY: isExpanded ? 'auto' : 'hidden',
-              overflowX: 'hidden',
-              transition: 'max-height 0.5s ease-in-out',
-              // Custom scrollbar styling
-              scrollbarWidth: 'thin',
-              scrollbarColor: '#4B5563 #1F2937'
+              maxHeight: isExpanded ? 400 : 0
             }}
-            className="custom-scrollbar"
-            onClick={(e) => e.stopPropagation()}
+            showsVerticalScrollIndicator={true}
+            onTouchStart={(e) => e.stopPropagation()}
           >
             {isFormExpanding ? (
-              <div style={{
-                display: 'flex',
+              <View style={{
+                flexDirection: 'row',
                 justifyContent: 'center',
                 alignItems: 'center',
-                padding: '20px',
-                color: '#9CA3AF'
+                padding: 20
               }}>
                 <Spinner size="small" />
-                <span style={{ marginLeft: '8px', fontSize: '14px' }}>Opening form...</span>
-              </div>
+                <Text style={{ marginLeft: 8, fontSize: 14, color: '#9CA3AF' }}>Opening form...</Text>
+              </View>
             ) : (
-              <div style={{
-                paddingRight: '8px',
-                paddingBottom: '16px',
-                paddingTop: '8px'
+              <View style={{
+                paddingRight: 8,
+                paddingBottom: 16,
+                paddingTop: 8
               }}>
                 {renderFormContent()}
                 {isFormScrollable && (
-                  <div style={{
-                    position: 'sticky',
-                    bottom: '0',
-                    textAlign: 'center',
-                    padding: '8px',
-                    background: 'linear-gradient(transparent, #1F2937)',
-                    color: '#9CA3AF',
-                    fontSize: '12px',
-                    pointerEvents: 'none'
+                  <View style={{
+                    alignItems: 'center',
+                    padding: 8,
+                    backgroundColor: '#1F2937'
                   }}>
-                    ↓ Scroll down for more fields ↓
-                  </div>
+                    <Text style={{ color: '#9CA3AF', fontSize: 12 }}>↓ Scroll down for more fields ↓</Text>
+                  </View>
                 )}
-              </div>
+              </View>
             )}
-          </div>
-      </div>
+          </ScrollView>
+      </View>
 
-      <div className="mt-4 pt-4 border-t border-dark-border">
-        {isAssigned ? (
-            <div className="flex justify-around items-center">
-                <button 
-                    onClick={() => updateCaseStatus(caseData.id, CaseStatus.InProgress)}
-                    className="flex flex-col items-center text-green-400 hover:text-green-300 transition-colors"
-                >
-                    <CheckIcon />
-                    <span className="text-xs mt-1">Accept</span>
-                </button>
-                <button 
-                    onClick={() => setIsRevokeModalOpen(true)}
-                    className="flex flex-col items-center text-red-400 hover:text-red-300 transition-colors"
-                >
-                    <XIcon />
-                    <span className="text-xs mt-1">Revoke</span>
-                </button>
-                <button
-                    onClick={() => setIsInfoModalOpen(true)}
-                    className="flex flex-col items-center text-blue-400 hover:text-blue-300 transition-colors"
-                >
-                    <InfoIcon />
-                    <span className="text-xs mt-1">Info</span>
-                </button>
-                <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        setIsAttachmentsModalOpen(true);
-                    }}
-                    className="flex flex-col items-center text-purple-400 hover:text-purple-300 transition-colors relative"
-                >
-                    <AttachmentIcon />
-                    <span className="text-xs mt-1">Attachments</span>
-                    {attachmentCount > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                            {attachmentCount}
-                        </span>
-                    )}
-                </button>
-            </div>
-        ) : (
-          <div className="flex justify-between items-center">
-            <div>
-              {isReorderable ? (
-                <div className="flex items-center space-x-2">
-                  <button onClick={(e) => { e.stopPropagation(); reorderInProgressCase(caseData.id, 'up'); }} disabled={isFirst} className="p-2 rounded-full disabled:text-gray-600 disabled:cursor-not-allowed text-medium-text hover:text-light-text transition-colors">
-                      <ArrowUpIcon />
-                  </button>
-                  <button onClick={(e) => { e.stopPropagation(); reorderInProgressCase(caseData.id, 'down'); }} disabled={isLast} className="p-2 rounded-full disabled:text-gray-600 disabled:cursor-not-allowed text-medium-text hover:text-light-text transition-colors">
-                      <ArrowDownIcon />
-                  </button>
-                </div>
-              ) : <div />}
-            </div>
+      {/* Action buttons and controls have been temporarily disabled for React Native compatibility */}
+      
+      {/* Modals have been temporarily disabled for React Native compatibility */}
 
-            <div className="flex items-center gap-2">
-              {caseData.isSaved && (
-                  <button
-                      onClick={async (e) => {
-                          e.stopPropagation();
-                          // First mark as completed, then submit
-                          await updateCaseStatus(caseData.id, CaseStatus.Completed);
-                          // The submission will be handled by the re-submit button that appears for completed cases
-                      }}
-                      className="px-4 py-2 text-sm font-semibold rounded-md bg-green-600 hover:bg-green-500 text-white transition-colors"
-                  >
-                      Complete Case
-                  </button>
-              )}
-
-              {/* Only show expand/collapse button for non-completed and non-saved cases */}
-              {!(caseData.status === CaseStatus.Completed || caseData.isSaved) && (
-                <button onClick={() => setIsExpanded(!isExpanded)} className="flex items-center text-medium-text p-2 rounded-md hover:bg-white/10">
-                    {isExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
-                    <span className="text-xs ml-1">
-                        {isExpanded ? 'Hide Details' : 'Select Outcome'}
-                    </span>
-                </button>
-              )}
-            </div>
-        </div>
-        )}
-      </div>
-    </div>
-
-    <Modal isVisible={isInfoModalOpen} onClose={() => setIsInfoModalOpen(false)} title="Case Assignment Information">
-        <div className="text-light-text space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
-                <div>
-                    <h4 className="font-bold text-sm text-medium-text">Customer Name *</h4>
-                    <p>{caseData.customer.name}</p>
-                </div>
-                <div>
-                    <h4 className="font-bold text-sm text-medium-text">Case ID *</h4>
-                    <p>{caseData.caseId || caseData.id}</p>
-                </div>
-                <div>
-                    <h4 className="font-bold text-sm text-medium-text">Client *</h4>
-                    <p>{caseData.clientName || 'N/A'}</p>
-                </div>
-                <div>
-                    <h4 className="font-bold text-sm text-medium-text">Product *</h4>
-                    <p>{caseData.product || 'N/A'}</p>
-                </div>
-                <div>
-                    <h4 className="font-bold text-sm text-medium-text">Verification Type *</h4>
-                    <p>{caseData.verificationType}</p>
-                </div>
-                <div>
-                    <h4 className="font-bold text-sm text-medium-text">Applicant Type *</h4>
-                    <p>{caseData.applicantType || 'N/A'}</p>
-                </div>
-                <div>
-                    <h4 className="font-bold text-sm text-medium-text">Created By Backend User *</h4>
-                    <p>{caseData.createdByBackendUser || 'N/A'}</p>
-                </div>
-                <div>
-                    <h4 className="font-bold text-sm text-medium-text">Backend Contact Number *</h4>
-                    <p>{caseData.backendContactNumber || 'N/A'}</p>
-                </div>
-                <div>
-                    <h4 className="font-bold text-sm text-medium-text">Assign to Field User *</h4>
-                    <p>{caseData.assignedToFieldUser || 'N/A'}</p>
-                </div>
-                <div>
-                    <h4 className="font-bold text-sm text-medium-text">Priority *</h4>
-                    <p>{caseData.priority || 'N/A'}</p>
-                </div>
-                <div>
-                    <h4 className="font-bold text-sm text-medium-text">TRIGGER *</h4>
-                    <p>{caseData.trigger || 'N/A'}</p>
-                </div>
-                <div>
-                    <h4 className="font-bold text-sm text-medium-text">Customer Calling Code *</h4>
-                    <p>{caseData.customerCallingCode || 'N/A'}</p>
-                </div>
-            </div>
-             <div className="flex justify-end pt-4">
-                <button
-                    onClick={() => setIsInfoModalOpen(false)}
-                    className="px-4 py-2 rounded-md bg-brand-primary hover:bg-brand-secondary text-white font-semibold"
-                >
-                    Close
-                </button>
-            </div>
-        </div>
-    </Modal>
-
-    <Modal isVisible={isRevokeModalOpen} onClose={() => setIsRevokeModalOpen(false)} title="Revoke Case">
-        <div className="space-y-4">
-            <SelectField
-                label="Reason for Revocation"
-                id={`revoke-reason-${caseData.id}`}
-                name="revokeReason"
-                value={revokeReason}
-                onChange={(e) => setRevokeReason(e.target.value as RevokeReason)}
-            >
-                {Object.values(RevokeReason).map(reason => (
-                    <option key={reason} value={reason}>{reason}</option>
-                ))}
-            </SelectField>
-            <p className="text-sm text-medium-text">
-                This will remove the case from your device and send it back to the server. This action cannot be undone.
-            </p>
-            <div className="flex justify-end gap-4 mt-6">
-                <button
-                    onClick={() => setIsRevokeModalOpen(false)}
-                    className="px-4 py-2 rounded-md bg-gray-600 hover:bg-gray-500 text-light-text font-semibold"
-                >
-                    Cancel
-                </button>
-                <button
-                    onClick={handleRevokeConfirm}
-                    className="px-4 py-2 rounded-md bg-red-600 hover:bg-red-500 text-white font-semibold"
-                >
-                    Confirm Revoke
-                </button>
-            </div>
-        </div>
-    </Modal>
-
-    {/* Attachments Modal */}
-    <AttachmentsModal
-      caseId={caseData.id}
-      isVisible={isAttachmentsModalOpen}
-      onClose={() => setIsAttachmentsModalOpen(false)}
-    />
-
-    </>
+      {/* Attachments Modal */}
+      <AttachmentsModal
+        caseId={caseData.id}
+        isVisible={isAttachmentsModalOpen}
+        onClose={() => setIsAttachmentsModalOpen(false)}
+      />
+      </View>
+    </View>
   );
 };
 

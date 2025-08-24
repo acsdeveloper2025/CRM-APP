@@ -27,20 +27,15 @@ export function RealTimePage() {
     notifications,
     unreadCount,
   } = useWebSocket({
+    autoConnect: false, // Don't auto-connect, use existing global connection
     onNotification: (notification) => {
-      toast(notification.title, {
-        description: notification.message,
-      });
+      toast(`${notification.title}: ${notification.message}`);
     },
     onCaseUpdate: (update) => {
-      toast('Case Updated', {
-        description: `Case ${update.caseId} has been updated`,
-      });
+      toast(`Case Updated: Case ${update.caseId} has been updated`);
     },
     onCaseStatusUpdate: (update) => {
-      toast('Status Changed', {
-        description: `Case ${update.caseId} status changed to ${update.status}`,
-      });
+      toast(`Status Changed: Case ${update.caseId} status changed to ${update.status}`);
     },
   });
 

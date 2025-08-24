@@ -69,7 +69,7 @@ const ProfileScreen: React.FC = () => {
           <Text style={{ color: '#9CA3AF', marginTop: 8 }}>Agent ID: {user?.id}</Text>
         </View>
 
-        <View style={{ marginTop: 32, gap: 16 }}>
+        <View style={{ marginTop: 32 }}>
           {/* Digital ID Card Button */}
           <TouchableOpacity
             onPress={handleNavigateToDigitalId}
@@ -80,12 +80,11 @@ const ProfileScreen: React.FC = () => {
               borderRadius: 6,
               flexDirection: 'row',
               alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8
+              justifyContent: 'center'
             }}
           >
             <Text style={{ color: 'white', fontSize: 20 }}>🆔</Text>
-            <Text style={{ color: 'white', fontWeight: '600', fontSize: 16 }}>View Digital ID Card</Text>
+            <Text style={{ color: 'white', fontWeight: '600', fontSize: 16, marginLeft: 8 }}>View Digital ID Card</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -98,11 +97,11 @@ const ProfileScreen: React.FC = () => {
               flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 8
+              marginTop: 12
             }}
           >
             <Text style={{ color: 'white', fontSize: 20 }}>🧹</Text>
-            <Text style={{ color: 'white', fontWeight: '600', fontSize: 16 }}>
+            <Text style={{ color: 'white', fontWeight: '600', fontSize: 16, marginLeft: 8 }}>
               {showCleanupManager ? 'Hide Data Cleanup' : 'Data Cleanup Manager'}
             </Text>
           </TouchableOpacity>
@@ -117,11 +116,11 @@ const ProfileScreen: React.FC = () => {
               flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 8
+              marginTop: 12
             }}
           >
             <LogOutIcon />
-            <Text style={{ color: 'white', fontWeight: '600', fontSize: 16 }}>Logout</Text>
+            <Text style={{ color: 'white', fontWeight: '600', fontSize: 16, marginLeft: 8 }}>Logout</Text>
           </TouchableOpacity>
         </View>
 

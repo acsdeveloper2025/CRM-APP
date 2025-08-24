@@ -45,7 +45,7 @@ export const NewCasePage: React.FC = () => {
       // Find pincode ID based on pincode code
       const foundPincode = pincodes.find(p => p.code === caseItem.pincode);
       if (foundPincode) {
-        setPincodeIdForAreas(foundPincode.id);
+        setPincodeIdForAreas(Number(foundPincode.id));
       } else {
         // If pincode doesn't exist, still proceed with mapping (without areas)
         setPincodeIdForAreas(undefined);
@@ -53,47 +53,71 @@ export const NewCasePage: React.FC = () => {
     }
   }, [isEditMode, caseData, pincodesResponse]);
 
-  // Second useEffect: Map all case data when areas are loaded
+  // Second useEffect: Map all case data when it's available (don't wait for areas)
   useEffect(() => {
     try {
-      if (isEditMode && caseData?.data && pincodesResponse?.data && areasResponse?.data) {
+      if (isEditMode && caseData?.data && pincodesResponse?.data) {
         const caseItem = caseData.data;
         const pincodes = pincodesResponse.data;
-        const areas = areasResponse.data;
+        
+        console.log('Mapping case data for edit:', caseItem);
 
         // Find pincode ID based on pincode code
         const foundPincode = pincodes.find(p => p.code === caseItem.pincode);
-        const pincodeId = foundPincode?.id?.toString() || '';
+        let pincodeId = foundPincode?.id?.toString() || '';
+        
+        // If pincode not found, use the first available pincode as fallback
+        if (!foundPincode && pincodes.length > 0) {
+          pincodeId = pincodes[0].id.toString();
+          console.warn('NewCasePage - Pincode not found, using fallback:', {
+            originalPincode: caseItem.pincode,
+            fallbackPincode: pincodes[0].code,
+            fallbackId: pincodeId
+          });
+        }
+        
+        console.log('NewCasePage - Pincode mapping:', {
+          caseItemPincode: caseItem.pincode,
+          availablePincodes: pincodes.map(p => ({ id: p.id, code: p.code })),
+          foundPincode,
+          finalPincodeId: pincodeId
+        });
 
-        // Select the first available area
-        const areaId = areas.length > 0 ? areas[0].id.toString() : '';
+        // For areas, use the first available area if loaded, otherwise empty
+        const areaId = areasResponse?.data && areasResponse.data.length > 0 ? areasResponse.data[0].id.toString() : '';
 
         // Map case data to CustomerInfoData format
         const customerInfo: CustomerInfoData = {
-          customerName: String(caseItem.customerName || caseItem.applicantName || ''),
-          mobileNumber: String(caseItem.customerPhone || caseItem.applicantPhone || ''),
+          customerName: String(caseItem.customerName || ''),
+          mobileNumber: String(caseItem.customerPhone || ''),
           panNumber: String(caseItem.panNumber || ''),
           customerCallingCode: String(caseItem.customerCallingCode || '')
         };
 
-        // Map case data to FullCaseFormData format
+        // Map case data to FullCaseFormData format with proper field mapping
         const caseFormData: FullCaseFormData = {
           clientId: String(caseItem.clientId || ''),
           productId: String(caseItem.productId || ''),
           verificationType: String(caseItem.verificationType || ''),
           verificationTypeId: String(caseItem.verificationTypeId || ''),
           applicantType: String(caseItem.applicantType || ''),
-          createdByBackendUser: '', // Will be set to current user
+          createdByBackendUser: String(caseItem.createdByName || caseItem.createdByBackendUser || ''), 
           backendContactNumber: String(caseItem.backendContactNumber || ''),
           assignedToId: String(caseItem.assignedTo || ''),
           priority: typeof caseItem.priority === 'string' ?
-            (caseItem.priority === 'LOW' ? 1 : caseItem.priority === 'MEDIUM' ? 2 : caseItem.priority === 'HIGH' ? 3 : 4) :
+            (caseItem.priority === 'LOW' ? 1 : 
+             caseItem.priority === 'MEDIUM' ? 2 : 
+             caseItem.priority === 'HIGH' ? 3 : 
+             caseItem.priority === 'URGENT' ? 4 : 2) :
             Number(caseItem.priority) || 2,
           notes: String(caseItem.trigger || caseItem.notes || ''),
           address: String(caseItem.address || ''),
-          pincodeId: pincodeId, // Map pincode code to pincode ID
-          areaId: areaId, // Set the first available area
+          pincodeId: pincodeId,
+          areaId: areaId,
         };
+
+        console.log('Mapped customer info:', customerInfo);
+        console.log('Mapped case form data:', caseFormData);
 
         setInitialData({
           customerInfo,

@@ -14,7 +14,10 @@ import type {
   UserExportData,
   RolePermission,
   UserClientAssignment,
-  UserProductAssignment
+  UserProductAssignment,
+  AdminPasswordResetDisplayResponse,
+  AdminPasswordResetEmailResponse,
+  GenerateTemporaryPasswordResponse
 } from '@/types/user';
 import type { ApiResponse, PaginationQuery } from '@/types/api';
 import type { Role } from '@/types/auth';
@@ -85,6 +88,15 @@ export class UsersService {
 
   async generateTemporaryPassword(userId: string): Promise<ApiResponse<{ temporaryPassword: string }>> {
     return apiService.post(`/users/${userId}/generate-temp-password`);
+  }
+
+  // Admin-only password reset functions
+  async adminResetPasswordAndDisplay(userId: string): Promise<ApiResponse<AdminPasswordResetDisplayResponse>> {
+    return apiService.post(`/users/${userId}/admin-reset-display`);
+  }
+
+  async adminResetPasswordAndEmail(userId: string): Promise<ApiResponse<AdminPasswordResetEmailResponse>> {
+    return apiService.post(`/users/${userId}/admin-reset-email`);
   }
 
   // Profile photo management

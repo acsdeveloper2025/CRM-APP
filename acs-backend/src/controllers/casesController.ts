@@ -220,10 +220,12 @@ export const getCases = async (req: AuthenticatedRequest, res: Response) => {
         c.*,
         cl.name as "clientName",
         cl.code as "clientCode",
-        u.name as "assignedToName"
+        u.name as "assignedToName",
+        cu.name as "createdByName"
       FROM cases c
       LEFT JOIN clients cl ON c."clientId" = cl.id
       LEFT JOIN users u ON c."assignedTo" = u.id
+      LEFT JOIN users cu ON c."createdByBackendUser" = cu.id
       ${whereClause}
       ORDER BY c."createdAt" DESC
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
@@ -297,10 +299,12 @@ export const getCaseById = async (req: AuthenticatedRequest, res: Response) => {
         c.*,
         cl.name as "clientName",
         cl.code as "clientCode",
-        u.name as "assignedToName"
+        u.name as "assignedToName",
+        cu.name as "createdByName"
       FROM cases c
       LEFT JOIN clients cl ON c."clientId" = cl.id
       LEFT JOIN users u ON c."assignedTo" = u.id
+      LEFT JOIN users cu ON c."createdByBackendUser" = cu.id
       WHERE ${whereConditions.join(' AND ')}
     `;
 

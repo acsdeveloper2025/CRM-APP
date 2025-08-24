@@ -154,7 +154,7 @@ export const validateCaseProductAccess = async (req: AuthenticatedRequest, res: 
 
     // Get the product ID for the case
     const caseResult = await query(
-      'SELECT "productId" FROM cases WHERE id = $1',
+      'SELECT "productId" FROM cases WHERE "caseId" = $1',
       [caseId]
     );
 

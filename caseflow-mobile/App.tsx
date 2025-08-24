@@ -6,7 +6,7 @@ import BottomNavigation from './components/BottomNavigation';
 import { SafeAreaProvider, MobileContainer } from './components/SafeAreaProvider';
 import { ResponsiveLayoutProvider } from './components/ResponsiveLayout';
 import ErrorBoundary from './components/ErrorBoundary';
-import { View } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { googleMapsService } from './services/googleMapsService';
 import { validateEnvironmentConfig, getEnvironmentConfig } from './config/environment';
 import { dataCleanupService } from './services/dataCleanupService';
@@ -28,24 +28,25 @@ const DigitalIdCardScreen = lazy(() => import('./screens/DigitalIdCardScreen'));
 const AppNavigator: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
-  // Initialize WebSocket connection with real-time notifications
+  // Initialize WebSocket connection with offline-first approach
   const {
     isConnected: wsConnected,
     error: wsError,
+    connect: connectWebSocket,
   } = useWebSocket({
-    autoConnect: true,
+    autoConnect: false, // Disabled for offline-first
     enableNotifications: true,
     onCaseAssigned: (notification) => {
-      console.log('🎯 New case assigned via WebSocket:', notification.case.caseId);
+      // New case assigned via WebSocket
     },
     onCaseStatusChanged: (notification) => {
-      console.log('📊 Case status changed via WebSocket:', notification.caseId, notification.newStatus);
+      // Case status changed via WebSocket
     },
     onCasePriorityChanged: (notification) => {
-      console.log('⚡ Case priority changed via WebSocket:', notification.caseId, notification.newPriority);
+      // Case priority changed via WebSocket
     },
     onError: (error) => {
-      console.error('❌ WebSocket error:', error);
+      // WebSocket error - silently handled in offline-first mode
     },
   });
 
@@ -71,14 +72,18 @@ const AppNavigator: React.FC = () => {
         // Initialize data cleanup service
         await dataCleanupService.initialize();
 
-        console.log('✅ All services initialized successfully');
+        // Try WebSocket connection only if online and authenticated
+        if (isAuthenticated && navigator.onLine) {
+          setTimeout(() => connectWebSocket(), 5000); // Delayed connection
+        }
       } catch (error) {
-        console.error('❌ Failed to initialize services:', error);
+        console.error('Service initialization error:', error);
       }
     };
 
     initializeServices();
-  }, []);
+    // Remove connectWebSocket from dependencies to prevent infinite re-renders
+  }, [isAuthenticated]);
 
   if (isLoading) {
     return (
@@ -90,7 +95,7 @@ const AppNavigator: React.FC = () => {
           backgroundColor: '#111827',
           height: '100vh'
         }}>
-          <div style={{ color: '#00a950', fontSize: '18px' }}>Loading...</div>
+          <Text style={{ color: '#00a950', fontSize: 18 }}>Loading...</Text>
         </View>
       </MobileContainer>
     );
@@ -106,10 +111,10 @@ const AppNavigator: React.FC = () => {
         backgroundColor: '#111827',
         height: '100vh'
       }}>
-        <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin w-8 h-8 border-2 border-brand-primary border-t-transparent rounded-full"></div>
-          <div style={{ color: '#00a950', fontSize: '16px' }}>Loading screen...</div>
-        </div>
+        <View style={{ flexDirection: 'column', alignItems: 'center' }}>
+          <View style={{ width: 32, height: 32, borderWidth: 2, borderColor: '#00a950', borderTopColor: 'transparent', borderRadius: 16, backgroundColor: 'transparent' }} />
+          <Text style={{ color: '#00a950', fontSize: 16 }}>Loading screen...</Text>
+        </View>
       </View>
     </MobileContainer>
   );
@@ -171,17 +176,19 @@ const App: React.FC = () => {
   } catch (error) {
     console.error('App render error:', error);
     return (
-      <div style={{
+      <View style={{
         backgroundColor: '#111827',
         color: '#ffffff',
-        padding: '20px',
+        padding: 20,
         minHeight: '100vh',
         fontFamily: 'Arial, sans-serif'
       }}>
-        <h1>App Error</h1>
-        <p>Failed to render app: {String(error)}</p>
-        <button onClick={() => window.location.reload()}>Reload</button>
-      </div>
+        <Text style={{ color: '#ffffff', fontSize: 24, marginBottom: 16 }}>App Error</Text>
+        <Text style={{ color: '#ffffff', marginBottom: 16 }}>Failed to render app: {String(error)}</Text>
+        <TouchableOpacity onPress={() => window.location.reload()} style={{ backgroundColor: '#00a950', padding: 10, borderRadius: 5 }}>
+          <Text style={{ color: '#ffffff' }}>Reload</Text>
+        </TouchableOpacity>
+      </View>
     );
   }
 };

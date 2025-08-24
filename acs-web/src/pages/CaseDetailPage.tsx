@@ -223,10 +223,10 @@ export const CaseDetailPage: React.FC = () => {
               <div>
                 <div className="flex items-center space-x-2">
                   <User className="h-4 w-4 text-gray-400" />
-                  <span className="font-medium">Created By Backend User</span>
+                  <span className="font-medium">Created By</span>
                 </div>
                 <p className="mt-1 text-sm text-gray-600">
-                  {caseItem.createdByBackendUser || 'System'}
+                  {caseItem.createdByName || caseItem.createdByBackendUser || 'System'}
                 </p>
               </div>
 

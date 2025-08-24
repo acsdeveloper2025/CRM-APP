@@ -34,7 +34,7 @@ export interface UseWebSocketReturn {
 
 export const useWebSocket = (options: UseWebSocketOptions = {}): UseWebSocketReturn => {
   const {
-    autoConnect = true,
+    autoConnect = false, // Disabled for offline-first
     enableNotifications = true,
     onCaseAssigned,
     onCaseStatusChanged,
@@ -46,6 +46,26 @@ export const useWebSocket = (options: UseWebSocketOptions = {}): UseWebSocketRet
   const { fetchCases } = useCases();
   const [state, setState] = useState<WebSocketState>(webSocketService.getState());
   const stateUpdateInterval = useRef<NodeJS.Timeout | null>(null);
+  
+  // Create stable references for callbacks to prevent infinite re-renders
+  const callbacksRef = useRef({
+    onCaseAssigned,
+    onCaseStatusChanged, 
+    onCasePriorityChanged,
+    onError,
+    fetchCases,
+  });
+  
+  // Update callbacks ref when they change
+  useEffect(() => {
+    callbacksRef.current = {
+      onCaseAssigned,
+      onCaseStatusChanged,
+      onCasePriorityChanged, 
+      onError,
+      fetchCases,
+    };
+  }, [onCaseAssigned, onCaseStatusChanged, onCasePriorityChanged, onError, fetchCases]);
 
   /**
    * Show local notification for case assignment
@@ -72,7 +92,7 @@ export const useWebSocket = (options: UseWebSocketOptions = {}): UseWebSocketRet
         ],
       });
     } catch (error) {
-      console.error('Failed to show case assignment notification:', error);
+
     }
   }, [enableNotifications]);
 
@@ -101,7 +121,7 @@ export const useWebSocket = (options: UseWebSocketOptions = {}): UseWebSocketRet
         ],
       });
     } catch (error) {
-      console.error('Failed to show case status change notification:', error);
+
     }
   }, [enableNotifications]);
 
@@ -133,7 +153,7 @@ export const useWebSocket = (options: UseWebSocketOptions = {}): UseWebSocketRet
         ],
       });
     } catch (error) {
-      console.error('Failed to show case priority change notification:', error);
+
     }
   }, [enableNotifications]);
 
@@ -143,19 +163,18 @@ export const useWebSocket = (options: UseWebSocketOptions = {}): UseWebSocketRet
   const setupEventHandlers = useCallback(() => {
     const handlers: WebSocketEventHandlers = {
       onConnected: (data) => {
-        console.log('✅ WebSocket connected:', data);
+        // WebSocket connected
         setState(webSocketService.getState());
       },
 
       onDisconnected: (reason) => {
-        console.log('🔌 WebSocket disconnected:', reason);
+        // WebSocket disconnected
         setState(webSocketService.getState());
       },
 
       onError: (error) => {
-        console.error('❌ WebSocket error:', error);
         setState(webSocketService.getState());
-        onError?.(error);
+        callbacksRef.current.onError?.(error);
       },
 
       onCaseAssigned: async (notification) => {
@@ -169,10 +188,10 @@ export const useWebSocket = (options: UseWebSocketOptions = {}): UseWebSocketRet
         console.log('🔄 Real-time sync result:', syncResult);
 
         // Refresh case list in UI
-        await fetchCases();
+        await callbacksRef.current.fetchCases();
 
         // Call custom handler
-        onCaseAssigned?.(notification);
+        callbacksRef.current.onCaseAssigned?.(notification);
       },
 
       onCaseStatusChanged: async (notification) => {
@@ -186,10 +205,10 @@ export const useWebSocket = (options: UseWebSocketOptions = {}): UseWebSocketRet
         console.log('🔄 Real-time sync result:', syncResult);
 
         // Refresh case list in UI
-        await fetchCases();
+        await callbacksRef.current.fetchCases();
 
         // Call custom handler
-        onCaseStatusChanged?.(notification);
+        callbacksRef.current.onCaseStatusChanged?.(notification);
       },
 
       onCasePriorityChanged: async (notification) => {
@@ -203,53 +222,41 @@ export const useWebSocket = (options: UseWebSocketOptions = {}): UseWebSocketRet
         console.log('🔄 Real-time sync result:', syncResult);
 
         // Refresh case list in UI
-        await fetchCases();
+        await callbacksRef.current.fetchCases();
 
         // Call custom handler
-        onCasePriorityChanged?.(notification);
+        callbacksRef.current.onCasePriorityChanged?.(notification);
       },
 
       onSyncCompleted: async (data) => {
-        console.log('🔄 Sync completed notification:', data);
-
+        // Sync completed notification
         // Trigger intelligent sync
         const syncResult = await caseService.forceSyncCases();
-        console.log('🔄 Sync result:', syncResult);
-
         // Refresh case list in UI
-        await fetchCases();
+        await callbacksRef.current.fetchCases();
       },
 
       onSyncTrigger: async (data) => {
-        console.log('🔄 Sync trigger received:', data);
-
+        // Sync trigger received
         // Trigger intelligent sync
         const syncResult = await caseService.forceSyncCases();
-        console.log('🔄 Triggered sync result:', syncResult);
-
         // Refresh case list in UI
-        await fetchCases();
+        await callbacksRef.current.fetchCases();
       },
     };
 
     webSocketService.setEventHandlers(handlers);
   }, [
-    onCaseAssigned,
-    onCaseStatusChanged,
-    onCasePriorityChanged,
-    onError,
-    fetchCases,
     showCaseAssignmentNotification,
     showCaseStatusChangeNotification,
     showCasePriorityChangeNotification,
   ]);
 
   /**
-   * Connect to WebSocket
+   * Connect to WebSocket (offline-first approach)
    */
   const connect = useCallback(async () => {
-    if (!isAuthenticated) {
-      console.log('⚠️ Cannot connect to WebSocket: not authenticated');
+    if (!isAuthenticated || !navigator.onLine) {
       return;
     }
 
@@ -257,7 +264,7 @@ export const useWebSocket = (options: UseWebSocketOptions = {}): UseWebSocketRet
       await webSocketService.connect();
       setState(webSocketService.getState());
     } catch (error) {
-      console.error('Failed to connect to WebSocket:', error);
+      // Silently fail for offline-first approach
       setState(webSocketService.getState());
     }
   }, [isAuthenticated]);
@@ -312,8 +319,9 @@ export const useWebSocket = (options: UseWebSocketOptions = {}): UseWebSocketRet
   useEffect(() => {
     setupEventHandlers();
 
-    if (autoConnect && isAuthenticated) {
-      connect();
+    if (autoConnect && isAuthenticated && !webSocketService.isConnected() && !webSocketService.getState().isConnecting) {
+      // Delayed connection to prevent flooding
+      setTimeout(() => connect(), 3000);
     }
 
     return () => {
@@ -329,8 +337,9 @@ export const useWebSocket = (options: UseWebSocketOptions = {}): UseWebSocketRet
   useEffect(() => {
     if (!isAuthenticated && webSocketService.isConnected()) {
       disconnect();
-    } else if (isAuthenticated && autoConnect && !webSocketService.isConnected()) {
-      connect();
+    } else if (isAuthenticated && autoConnect && !webSocketService.isConnected() && !webSocketService.getState().isConnecting) {
+      // Only connect if not already connecting
+      setTimeout(() => connect(), 2000); // Delayed connection to prevent flooding
     }
   }, [isAuthenticated, autoConnect, connect, disconnect]);
 

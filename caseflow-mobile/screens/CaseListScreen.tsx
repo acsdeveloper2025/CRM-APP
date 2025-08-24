@@ -7,9 +7,6 @@ import CaseCard from '../components/CaseCard';
 import TabSearch from '../components/TabSearch';
 import { useTabSearch } from '../hooks/useTabSearch';
 
-
-
-
 interface CaseListScreenProps {
   title: string;
   filter: (caseData: Case) => boolean;
@@ -102,7 +99,7 @@ const CaseListScreen: React.FC<CaseListScreenProps> = ({
 
   // Create a stable header component to prevent TabSearch from being recreated
   const ListHeader = React.useMemo(() => (
-    <>
+    <View>
       {renderHeader()}
       <TabSearch
         searchQuery={searchQuery}
@@ -112,11 +109,11 @@ const CaseListScreen: React.FC<CaseListScreenProps> = ({
         totalCount={totalCount}
       />
       {customHeaderActions && (
-        <div style={{ paddingHorizontal: 16, marginBottom: 8 }}>
+        <View style={{ paddingHorizontal: 16, marginBottom: 8 }}>
           {customHeaderActions}
-        </div>
+        </View>
       )}
-    </>
+    </View>
   ), [searchQuery, searchPlaceholder, resultCount, totalCount, customHeaderActions]);
 
   if (loading) {
